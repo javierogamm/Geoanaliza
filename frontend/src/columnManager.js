@@ -61,19 +61,19 @@ export function generateCellValue(column, rowIndex, totalRows) {
 // Genera valor para columna tipo selector (con distribución de %)
 function generateSelectorValue(config, rowIndex, totalRows) {
   // config.options: [{ reference: 'opt1', value: 'Opción 1', percentage: 30 }, ...]
-  // Distribuimos según los porcentajes y devolvemos el VALUE (no la referencia)
+  // Distribuimos según los porcentajes de forma ALEATORIA (no secuencial)
 
   if (!config.options || config.options.length === 0) {
     return '';
   }
 
-  // Calculamos en qué "bloque" cae esta fila
-  const percentage = (rowIndex / totalRows) * 100;
+  // Generamos un número aleatorio entre 0 y 100
+  const randomPercentage = Math.random() * 100;
   let accumulated = 0;
 
   for (const option of config.options) {
     accumulated += option.percentage;
-    if (percentage < accumulated) {
+    if (randomPercentage < accumulated) {
       return option.value; // Devolvemos el valor, no la referencia
     }
   }
