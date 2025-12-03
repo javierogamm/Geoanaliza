@@ -77,6 +77,13 @@
               </select>
             </div>
 
+            <!-- Campo para número de filas (solo visible si no hay datos) -->
+            <div id="rows-field" class="field" style="display: none;">
+              <label for="num-rows">Número de filas a generar *</label>
+              <input id="num-rows" type="number" min="1" max="1000" value="20" placeholder="20" />
+              <p class="help-text">Se generarán filas con datos ficticios para las columnas personalizadas</p>
+            </div>
+
             <!-- Configuración específica para cada tipo -->
             <div id="config-selector" class="config-section" style="display: none;">
               <h4>Opciones del selector</h4>

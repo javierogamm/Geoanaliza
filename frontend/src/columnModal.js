@@ -6,6 +6,8 @@ const closeBtn = document.getElementById('close-modal');
 const cancelBtn = document.getElementById('cancel-modal');
 const form = document.getElementById('column-form');
 const typeSelect = document.getElementById('column-type');
+const rowsField = document.getElementById('rows-field');
+const numRowsInput = document.getElementById('num-rows');
 
 // Secciones de configuración
 const configSections = {
@@ -17,9 +19,12 @@ const configSections = {
 
 // Callback que se ejecuta cuando se añade una columna
 let onColumnAddedCallback = null;
+// Función para verificar si hay datos cargados
+let hasDataCallback = null;
 
-export function initColumnModal(onColumnAdded) {
+export function initColumnModal(onColumnAdded, hasData) {
   onColumnAddedCallback = onColumnAdded;
+  hasDataCallback = hasData;
 
   // Abrir modal
   openBtn.addEventListener('click', openModal);
@@ -50,6 +55,15 @@ export function initColumnModal(onColumnAdded) {
 function openModal() {
   modal.classList.add('active');
   resetForm();
+
+  // Mostrar campo de número de filas solo si no hay datos
+  if (hasDataCallback && !hasDataCallback()) {
+    rowsField.style.display = 'block';
+    numRowsInput.required = true;
+  } else {
+    rowsField.style.display = 'none';
+    numRowsInput.required = false;
+  }
 }
 
 function closeModal() {
@@ -119,6 +133,16 @@ function handleFormSubmit(e) {
     return;
   }
 
+  // Obtener número de filas si no hay datos
+  let numRows = null;
+  if (hasDataCallback && !hasDataCallback()) {
+    numRows = parseInt(numRowsInput.value, 10);
+    if (isNaN(numRows) || numRows < 1) {
+      alert('Por favor, especifica un número válido de filas (mínimo 1)');
+      return;
+    }
+  }
+
   // Añadir la columna
   addCustomColumn({
     name: columnName,
@@ -128,9 +152,9 @@ function handleFormSubmit(e) {
 
   closeModal();
 
-  // Ejecutar callback
+  // Ejecutar callback con el número de filas
   if (onColumnAddedCallback) {
-    onColumnAddedCallback();
+    onColumnAddedCallback(numRows);
   }
 }
 

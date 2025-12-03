@@ -16,6 +16,8 @@ const exportButton = document.getElementById('export-btn');
 
 // Variable para guardar los últimos puntos y poder re-renderizar
 let lastPointsData = null;
+// Variable para guardar puntos ficticios generados
+let mockPoints = [];
 
 const parseLimit = (value) => {
   const parsed = parseInt(value, 10);
@@ -24,17 +26,44 @@ const parseLimit = (value) => {
   return parsed;
 };
 
+// Función para verificar si hay datos cargados
+function hasData() {
+  return (lastPointsData && lastPointsData.points && lastPointsData.points.length > 0) || mockPoints.length > 0;
+}
+
+// Función para generar puntos ficticios
+function generateMockPoints(numRows) {
+  mockPoints = [];
+  for (let i = 0; i < numRows; i++) {
+    mockPoints.push({
+      id: `mock_${i}`,
+      name: `Punto ${i + 1}`,
+      street: `Calle ficticia ${i + 1}`,
+      lat: 0,
+      lng: 0,
+      source: 'mock'
+    });
+  }
+}
+
 // Inicializar el modal de columnas personalizadas
-initColumnModal(() => {
-  // Callback: cuando se añade una columna, re-renderizar la tabla
-  if (lastPointsData) {
-    // Si hay datos, re-renderizar con los datos
+initColumnModal((numRows) => {
+  // Callback: cuando se añade una columna
+  if (numRows) {
+    // Si se especifica número de filas, generar puntos ficticios
+    generateMockPoints(numRows);
+    renderPoints(mockPoints);
+  } else if (lastPointsData) {
+    // Si hay datos reales, re-renderizar con los datos
     renderPoints(lastPointsData.points);
+  } else if (mockPoints.length > 0) {
+    // Si hay puntos ficticios, re-renderizar con ellos
+    renderPoints(mockPoints);
   } else {
-    // Si no hay datos, renderizar tabla vacía con las columnas personalizadas
+    // Si no hay nada, renderizar tabla vacía
     renderPoints([]);
   }
-});
+}, hasData);
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -54,6 +83,7 @@ form.addEventListener('submit', async (event) => {
   try {
     const data = await fetchPoints({ city, neighbourhood, limit });
     lastPointsData = data; // Guardamos los datos para re-renderizar
+    mockPoints = []; // Limpiar puntos ficticios cuando se cargan datos reales
     renderMeta({
       city: data.city,
       neighbourhood: data.neighbourhood,

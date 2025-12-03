@@ -68,19 +68,24 @@ export function renderPoints(points) {
   const tbody = document.createElement('tbody');
   currentPoints.forEach((point, index) => {
     const row = document.createElement('tr');
+    const isMockPoint = point.source === 'mock';
 
     // Celdas base
     const nameCell = document.createElement('td');
     nameCell.textContent = point.name || 'Punto sin nombre';
+    if (isMockPoint) nameCell.style.color = 'var(--muted)';
 
     const streetCell = document.createElement('td');
     streetCell.textContent = point.street || 'Dirección no disponible';
+    if (isMockPoint) streetCell.style.color = 'var(--muted)';
 
     const latCell = document.createElement('td');
-    latCell.textContent = point.lat.toFixed(5);
+    latCell.textContent = isMockPoint ? '-' : point.lat.toFixed(5);
+    if (isMockPoint) latCell.style.color = 'var(--muted)';
 
     const lngCell = document.createElement('td');
-    lngCell.textContent = point.lng.toFixed(5);
+    lngCell.textContent = isMockPoint ? '-' : point.lng.toFixed(5);
+    if (isMockPoint) lngCell.style.color = 'var(--muted)';
 
     [nameCell, streetCell, latCell, lngCell].forEach((cell) => row.appendChild(cell));
 
