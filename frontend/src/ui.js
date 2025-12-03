@@ -24,6 +24,16 @@ export function renderPoints(points) {
   resultsList.innerHTML = '';
   currentPoints = points || [];
 
+  const customColumns = getCustomColumns();
+
+  // Si no hay puntos pero hay columnas personalizadas, mostramos solo los headers
+  if ((!currentPoints || currentPoints.length === 0) && customColumns.length > 0) {
+    renderEmptyTableWithColumns(customColumns);
+    if (exportButton) exportButton.disabled = true;
+    return;
+  }
+
+  // Si no hay puntos ni columnas personalizadas, mensaje por defecto
   if (!currentPoints || currentPoints.length === 0) {
     resultsList.innerHTML = '<p class="meta">Sin resultados para esta búsqueda.</p>';
     if (exportButton) exportButton.disabled = true;
@@ -46,7 +56,6 @@ export function renderPoints(points) {
   });
 
   // Columnas personalizadas
-  const customColumns = getCustomColumns();
   customColumns.forEach((column) => {
     const th = document.createElement('th');
     th.textContent = column.name;
@@ -91,6 +100,48 @@ export function renderPoints(points) {
   resultsList.appendChild(table);
 
   if (exportButton) exportButton.disabled = false;
+}
+
+// Renderiza una tabla vacía mostrando solo las columnas personalizadas
+function renderEmptyTableWithColumns(customColumns) {
+  const table = document.createElement('table');
+  table.className = 'results-table';
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+
+  // Columnas base
+  ['Nombre', 'Calle', 'Latitud', 'Longitud'].forEach((label) => {
+    const th = document.createElement('th');
+    th.textContent = label;
+    headerRow.appendChild(th);
+  });
+
+  // Columnas personalizadas
+  customColumns.forEach((column) => {
+    const th = document.createElement('th');
+    th.textContent = column.name;
+    th.style.background = 'rgba(59, 130, 246, 0.12)';
+    headerRow.appendChild(th);
+  });
+
+  thead.appendChild(headerRow);
+
+  // Fila informativa
+  const tbody = document.createElement('tbody');
+  const infoRow = document.createElement('tr');
+  const infoCell = document.createElement('td');
+  infoCell.colSpan = 4 + customColumns.length;
+  infoCell.textContent = 'Busca datos georeferenciados para ver los resultados con tus columnas personalizadas';
+  infoCell.style.textAlign = 'center';
+  infoCell.style.fontStyle = 'italic';
+  infoCell.style.color = 'var(--muted)';
+  infoCell.style.padding = '20px';
+  infoRow.appendChild(infoCell);
+  tbody.appendChild(infoRow);
+
+  table.appendChild(thead);
+  table.appendChild(tbody);
+  resultsList.appendChild(table);
 }
 
 // Genera los datos para todas las columnas personalizadas

@@ -6,7 +6,7 @@ import {
   setStatus,
   exportCSV
 } from './ui.js';
-import { initColumnModal, enableAddColumnButton, disableAddColumnButton } from './columnModal.js';
+import { initColumnModal } from './columnModal.js';
 
 const form = document.getElementById('search-form');
 const cityInput = document.getElementById('city');
@@ -28,14 +28,17 @@ const parseLimit = (value) => {
 initColumnModal(() => {
   // Callback: cuando se añade una columna, re-renderizar la tabla
   if (lastPointsData) {
+    // Si hay datos, re-renderizar con los datos
     renderPoints(lastPointsData.points);
+  } else {
+    // Si no hay datos, renderizar tabla vacía con las columnas personalizadas
+    renderPoints([]);
   }
 });
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   clearResults();
-  disableAddColumnButton();
 
   const city = cityInput.value.trim();
   const neighbourhood = neighbourhoodInput.value.trim();
@@ -58,11 +61,9 @@ form.addEventListener('submit', async (event) => {
       returned: data.returned
     });
     renderPoints(data.points);
-    enableAddColumnButton(); // Habilitar botón de añadir columna
     setStatus('');
   } catch (error) {
     setStatus(error.message || 'No se pudo obtener puntos', true);
-    disableAddColumnButton();
   }
 });
 
