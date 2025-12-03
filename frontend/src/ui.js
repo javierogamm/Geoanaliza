@@ -1,4 +1,5 @@
 import { getCustomColumns, generateCellValue, formatCellValue, formatCellValueForCSV } from './columnManager.js';
+import { getBaseColumnsConfig } from './baseColumnsModal.js';
 
 const resultsList = document.getElementById('results-list');
 const resultsMeta = document.getElementById('results-meta');
@@ -48,8 +49,13 @@ export function renderPoints(points) {
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
 
-  // Columnas base
-  ['Nombre', 'Calle', 'Latitud', 'Longitud'].forEach((label) => {
+  // Columnas base - usar nombres de tesauros configurados
+  const baseConfig = getBaseColumnsConfig();
+  const baseLabels = baseConfig
+    ? ['Nombre', baseConfig.street.name, baseConfig.lat.name, baseConfig.lng.name]
+    : ['Nombre', 'Calle', 'Latitud', 'Longitud'];
+
+  baseLabels.forEach((label) => {
     const th = document.createElement('th');
     th.textContent = label;
     headerRow.appendChild(th);
@@ -114,8 +120,13 @@ function renderEmptyTableWithColumns(customColumns) {
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
 
-  // Columnas base
-  ['Nombre', 'Calle', 'Latitud', 'Longitud'].forEach((label) => {
+  // Columnas base - usar nombres de tesauros configurados
+  const baseConfig = getBaseColumnsConfig();
+  const baseLabels = baseConfig
+    ? ['Nombre', baseConfig.street.name, baseConfig.lat.name, baseConfig.lng.name]
+    : ['Nombre', 'Calle', 'Latitud', 'Longitud'];
+
+  baseLabels.forEach((label) => {
     const th = document.createElement('th');
     th.textContent = label;
     headerRow.appendChild(th);
@@ -202,7 +213,10 @@ export function exportCSV() {
   }
 
   const customColumns = getCustomColumns();
-  const headers = ['Nombre', 'Calle', 'Latitud', 'Longitud'];
+  const baseConfig = getBaseColumnsConfig();
+  const headers = baseConfig
+    ? ['Nombre', baseConfig.street.name, baseConfig.lat.name, baseConfig.lng.name]
+    : ['Nombre', 'Calle', 'Latitud', 'Longitud'];
 
   // Añadir headers de columnas personalizadas
   customColumns.forEach((column) => {

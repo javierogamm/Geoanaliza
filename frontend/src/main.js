@@ -7,6 +7,7 @@ import {
   exportCSV
 } from './ui.js';
 import { initColumnModal } from './columnModal.js';
+import { initBaseColumnsModal, openBaseColumnsModal, hasBaseColumnsConfig } from './baseColumnsModal.js';
 
 const form = document.getElementById('search-form');
 const cityInput = document.getElementById('city');
@@ -65,8 +66,31 @@ initColumnModal((numRows) => {
   }
 }, hasData);
 
+// Inicializar el modal de tesauros base
+initBaseColumnsModal((config) => {
+  // Una vez configurado, proceder con la búsqueda
+  performSearch();
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
+
+  const city = cityInput.value.trim();
+  if (!city) {
+    setStatus('Introduce un municipio para buscar.', true);
+    return;
+  }
+
+  // Si no hay configuración de tesauros base, mostrar modal
+  if (!hasBaseColumnsConfig()) {
+    openBaseColumnsModal();
+  } else {
+    // Si ya hay configuración, proceder con la búsqueda
+    performSearch();
+  }
+});
+
+async function performSearch() {
   clearResults();
 
   const city = cityInput.value.trim();
@@ -95,7 +119,7 @@ form.addEventListener('submit', async (event) => {
   } catch (error) {
     setStatus(error.message || 'No se pudo obtener puntos', true);
   }
-});
+}
 
 exportButton.addEventListener('click', () => {
   try {

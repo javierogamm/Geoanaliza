@@ -53,6 +53,51 @@
         <p class="attribution">Datos geográficos © OpenStreetMap contributors</p>
       </section>
 
+      <!-- Modal para configurar tesauros base -->
+      <div id="base-columns-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Configurar columnas base</h3>
+            <button id="close-base-modal" class="btn-close">&times;</button>
+          </div>
+          <form id="base-columns-form" class="column-form">
+            <p class="help-text" style="margin-top: 0;">Define los nombres de tesauro para las columnas base antes de importar los geodatos</p>
+
+            <div class="field">
+              <label for="street-name">Dirección - Nombre del tesauro *</label>
+              <input id="street-name" type="text" placeholder="Ej. Dirección" required />
+            </div>
+            <div class="field">
+              <label for="street-reference">Dirección - Referencia *</label>
+              <input id="street-reference" type="text" placeholder="Ej. direccion" required />
+            </div>
+
+            <div class="field">
+              <label for="lat-name">Latitud - Nombre del tesauro *</label>
+              <input id="lat-name" type="text" placeholder="Ej. Latitud" required />
+            </div>
+            <div class="field">
+              <label for="lat-reference">Latitud - Referencia *</label>
+              <input id="lat-reference" type="text" placeholder="Ej. latitud" required />
+            </div>
+
+            <div class="field">
+              <label for="lng-name">Longitud - Nombre del tesauro *</label>
+              <input id="lng-name" type="text" placeholder="Ej. Longitud" required />
+            </div>
+            <div class="field">
+              <label for="lng-reference">Longitud - Referencia *</label>
+              <input id="lng-reference" type="text" placeholder="Ej. longitud" required />
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancel-base-modal" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn">Continuar búsqueda</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Modal para añadir columna personalizada -->
       <div id="column-modal" class="modal">
         <div class="modal-content">
