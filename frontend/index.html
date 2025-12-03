@@ -46,6 +46,9 @@
             <button id="import-excel-btn" type="button" class="btn btn-import">
               📊 Importar Expedientes
             </button>
+            <button id="transpose-btn" type="button" class="btn btn-transpose" style="display: none;">
+              🔄 Transponer datos
+            </button>
             <button id="add-column-btn" type="button" class="btn btn-add">
               <span class="btn-icon">+</span> Añadir columna
             </button>
@@ -55,6 +58,26 @@
         <div id="results-list" class="results-list" aria-live="polite"></div>
         <p class="attribution">Datos geográficos © OpenStreetMap contributors</p>
       </section>
+
+      <!-- Modal para tabla transpuesta -->
+      <div id="transpose-modal" class="modal">
+        <div class="modal-content modal-large">
+          <div class="modal-header">
+            <h3>Datos Transpuestos (Agrupados por Expediente)</h3>
+            <button id="close-transpose-modal" class="btn-close">&times;</button>
+          </div>
+          <div class="transpose-content">
+            <div class="transpose-actions">
+              <button id="export-transposed-excel" type="button" class="btn">
+                📥 Exportar a Excel
+              </button>
+            </div>
+            <div id="transposed-table-container" class="transposed-table-container">
+              <!-- La tabla transpuesta se renderiza aquí -->
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Modal para importar expedientes -->
       <div id="import-modal" class="modal">

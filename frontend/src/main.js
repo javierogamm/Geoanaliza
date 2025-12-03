@@ -4,11 +4,14 @@ import {
   renderMeta,
   renderPoints,
   setStatus,
-  exportCSV
+  exportCSV,
+  getCurrentPoints,
+  getCustomColumnsDataMap
 } from './ui.js';
 import { initColumnModal } from './columnModal.js';
 import { initBaseColumnsModal, openBaseColumnsModal, hasBaseColumnsConfig } from './baseColumnsModal.js';
 import { initImportExcel, getExpedientesData, hasExpedientes } from './importExcel.js';
+import { initTranspose, showTransposeButton, hideTransposeButton } from './transposeData.js';
 
 const form = document.getElementById('search-form');
 const cityInput = document.getElementById('city');
@@ -96,7 +99,12 @@ initImportExcel((expedientes) => {
   // Cuando se importan expedientes, generar puntos y renderizar
   generatePointsFromExpedientes(expedientes);
   renderPoints(mockPoints);
+  // Mostrar botón de transponer
+  showTransposeButton();
 });
+
+// Inicializar el módulo de transposición
+initTranspose(getCurrentPoints, getCustomColumnsDataMap);
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();

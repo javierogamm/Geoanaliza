@@ -213,6 +213,15 @@ function getCustomColumnValue(pointId, columnId) {
   return pointData.get(columnId) || '';
 }
 
+// Funciones para acceder a datos desde otros módulos
+export function getCurrentPoints() {
+  return currentPoints;
+}
+
+export function getCustomColumnsDataMap() {
+  return customColumnsData;
+}
+
 export function clearResults() {
   resultsList.innerHTML = '';
   resultsMeta.textContent = '';

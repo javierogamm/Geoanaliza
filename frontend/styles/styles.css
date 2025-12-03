@@ -265,6 +265,30 @@ input:focus {
   animation: slideUp 0.3s ease;
 }
 
+.modal-large {
+  max-width: 95%;
+  width: 95%;
+}
+
+.transpose-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.transpose-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.transposed-table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(30px);
