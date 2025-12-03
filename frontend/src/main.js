@@ -8,6 +8,7 @@ import {
 } from './ui.js';
 import { initColumnModal } from './columnModal.js';
 import { initBaseColumnsModal, openBaseColumnsModal, hasBaseColumnsConfig } from './baseColumnsModal.js';
+import { initImportExcel, getExpedientesData, hasExpedientes } from './importExcel.js';
 
 const form = document.getElementById('search-form');
 const cityInput = document.getElementById('city');
@@ -47,6 +48,24 @@ function generateMockPoints(numRows) {
   }
 }
 
+// Función para generar puntos desde expedientes importados
+function generatePointsFromExpedientes(expedientes) {
+  mockPoints = [];
+  const { values } = expedientes;
+
+  for (let i = 0; i < values.length; i++) {
+    mockPoints.push({
+      id: `expediente_${i}`,
+      name: `Expediente ${i + 1}`,
+      street: '',
+      lat: 0,
+      lng: 0,
+      source: 'expediente',
+      expedienteValue: values[i]
+    });
+  }
+}
+
 // Inicializar el modal de columnas personalizadas
 initColumnModal((numRows) => {
   // Callback: cuando se añade una columna
@@ -70,6 +89,13 @@ initColumnModal((numRows) => {
 initBaseColumnsModal((config) => {
   // Una vez configurado, proceder con la búsqueda
   performSearch();
+});
+
+// Inicializar el módulo de importación de Excel
+initImportExcel((expedientes) => {
+  // Cuando se importan expedientes, generar puntos y renderizar
+  generatePointsFromExpedientes(expedientes);
+  renderPoints(mockPoints);
 });
 
 form.addEventListener('submit', async (event) => {

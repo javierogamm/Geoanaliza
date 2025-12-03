@@ -1,5 +1,6 @@
 import { getCustomColumns, generateCellValue, formatCellValue, formatCellValueForCSV } from './columnManager.js';
 import { getBaseColumnsConfig } from './baseColumnsModal.js';
+import { getExpedientesData, hasExpedientes } from './importExcel.js';
 
 const resultsList = document.getElementById('results-list');
 const resultsMeta = document.getElementById('results-meta');
@@ -49,6 +50,15 @@ export function renderPoints(points) {
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
 
+  // Columna de expedientes (si existe, va primero)
+  const expedientes = getExpedientesData();
+  if (expedientes) {
+    const th = document.createElement('th');
+    th.textContent = expedientes.name;
+    th.style.background = 'rgba(16, 185, 129, 0.12)'; // Color verde para destacar
+    headerRow.appendChild(th);
+  }
+
   // Columnas base - usar nombres de tesauros configurados
   const baseConfig = getBaseColumnsConfig();
   const baseLabels = baseConfig
@@ -75,23 +85,32 @@ export function renderPoints(points) {
   currentPoints.forEach((point, index) => {
     const row = document.createElement('tr');
     const isMockPoint = point.source === 'mock';
+    const isExpedientePoint = point.source === 'expediente';
+
+    // Celda de expediente (si existe, va primero)
+    if (expedientes) {
+      const expedienteCell = document.createElement('td');
+      expedienteCell.textContent = isExpedientePoint ? (point.expedienteValue || '') : '';
+      expedienteCell.style.fontWeight = '600';
+      row.appendChild(expedienteCell);
+    }
 
     // Celdas base
     const nameCell = document.createElement('td');
     nameCell.textContent = point.name || 'Punto sin nombre';
-    if (isMockPoint) nameCell.style.color = 'var(--muted)';
+    if (isMockPoint || isExpedientePoint) nameCell.style.color = 'var(--muted)';
 
     const streetCell = document.createElement('td');
     streetCell.textContent = point.street || 'Dirección no disponible';
-    if (isMockPoint) streetCell.style.color = 'var(--muted)';
+    if (isMockPoint || isExpedientePoint) streetCell.style.color = 'var(--muted)';
 
     const latCell = document.createElement('td');
-    latCell.textContent = isMockPoint ? '-' : point.lat.toFixed(5);
-    if (isMockPoint) latCell.style.color = 'var(--muted)';
+    latCell.textContent = (isMockPoint || isExpedientePoint) ? '-' : point.lat.toFixed(5);
+    if (isMockPoint || isExpedientePoint) latCell.style.color = 'var(--muted)';
 
     const lngCell = document.createElement('td');
-    lngCell.textContent = isMockPoint ? '-' : point.lng.toFixed(5);
-    if (isMockPoint) lngCell.style.color = 'var(--muted)';
+    lngCell.textContent = (isMockPoint || isExpedientePoint) ? '-' : point.lng.toFixed(5);
+    if (isMockPoint || isExpedientePoint) lngCell.style.color = 'var(--muted)';
 
     [nameCell, streetCell, latCell, lngCell].forEach((cell) => row.appendChild(cell));
 
@@ -120,6 +139,15 @@ function renderEmptyTableWithColumns(customColumns) {
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
 
+  // Columna de expedientes (si existe, va primero)
+  const expedientes = getExpedientesData();
+  if (expedientes) {
+    const th = document.createElement('th');
+    th.textContent = expedientes.name;
+    th.style.background = 'rgba(16, 185, 129, 0.12)';
+    headerRow.appendChild(th);
+  }
+
   // Columnas base - usar nombres de tesauros configurados
   const baseConfig = getBaseColumnsConfig();
   const baseLabels = baseConfig
@@ -146,7 +174,8 @@ function renderEmptyTableWithColumns(customColumns) {
   const tbody = document.createElement('tbody');
   const infoRow = document.createElement('tr');
   const infoCell = document.createElement('td');
-  infoCell.colSpan = 4 + customColumns.length;
+  const totalColumns = 4 + customColumns.length + (expedientes ? 1 : 0);
+  infoCell.colSpan = totalColumns;
   infoCell.textContent = 'Busca datos georeferenciados para ver los resultados con tus columnas personalizadas';
   infoCell.style.textAlign = 'center';
   infoCell.style.fontStyle = 'italic';
@@ -213,10 +242,22 @@ export function exportCSV() {
   }
 
   const customColumns = getCustomColumns();
+  const expedientes = getExpedientesData();
   const baseConfig = getBaseColumnsConfig();
-  const headers = baseConfig
+
+  const headers = [];
+
+  // Columna de expedientes (si existe, va primero)
+  if (expedientes) {
+    headers.push(expedientes.name);
+  }
+
+  // Columnas base
+  const baseLabels = baseConfig
     ? ['Nombre', baseConfig.street.name, baseConfig.lat.name, baseConfig.lng.name]
     : ['Nombre', 'Calle', 'Latitud', 'Longitud'];
+
+  headers.push(...baseLabels);
 
   // Añadir headers de columnas personalizadas
   customColumns.forEach((column) => {
@@ -224,12 +265,21 @@ export function exportCSV() {
   });
 
   const rows = currentPoints.map((point) => {
-    const row = [
+    const row = [];
+
+    // Valor del expediente (si existe, va primero)
+    if (expedientes) {
+      const isExpedientePoint = point.source === 'expediente';
+      row.push(isExpedientePoint ? (point.expedienteValue || '') : '');
+    }
+
+    // Valores base
+    row.push(
       point.name || 'Punto sin nombre',
       point.street || 'Dirección no disponible',
       formatNumberForCsv(point.lat),
       formatNumberForCsv(point.lng)
-    ];
+    );
 
     // Añadir valores de columnas personalizadas
     customColumns.forEach((column) => {

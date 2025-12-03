@@ -43,6 +43,9 @@
           <h2>Resultados</h2>
           <div class="results-actions">
             <p class="meta" id="results-meta"></p>
+            <button id="import-excel-btn" type="button" class="btn btn-import">
+              📊 Importar Expedientes
+            </button>
             <button id="add-column-btn" type="button" class="btn btn-add">
               <span class="btn-icon">+</span> Añadir columna
             </button>
@@ -52,6 +55,48 @@
         <div id="results-list" class="results-list" aria-live="polite"></div>
         <p class="attribution">Datos geográficos © OpenStreetMap contributors</p>
       </section>
+
+      <!-- Modal para importar expedientes -->
+      <div id="import-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Importar Expedientes desde Excel</h3>
+            <button id="close-import-modal" class="btn-close">&times;</button>
+          </div>
+          <form id="import-form" class="column-form">
+            <p class="help-text" style="margin-top: 0;">Selecciona un archivo Excel (.xlsx, .xls) para importar los expedientes</p>
+
+            <div class="field">
+              <label for="excel-file">Archivo Excel *</label>
+              <input id="excel-file" type="file" accept=".xlsx,.xls" required />
+              <p class="help-text">Formatos soportados: .xlsx, .xls</p>
+            </div>
+
+            <div class="field">
+              <label for="column-select">Columna a importar *</label>
+              <select id="column-select" required disabled>
+                <option value="">Primero carga un archivo...</option>
+              </select>
+              <p class="help-text">Selecciona la columna del Excel que contiene los expedientes</p>
+            </div>
+
+            <div class="field">
+              <label for="expediente-name">Nombre del tesauro *</label>
+              <input id="expediente-name" type="text" placeholder="Ej. Expediente" value="Expediente" required />
+            </div>
+
+            <div class="field">
+              <label for="expediente-reference">Referencia *</label>
+              <input id="expediente-reference" type="text" placeholder="Ej. expediente" value="expediente" required />
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancel-import-modal" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn">Importar</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
       <!-- Modal para configurar tesauros base -->
       <div id="base-columns-modal" class="modal">
@@ -193,6 +238,8 @@
       </div>
     </main>
 
+    <!-- SheetJS para leer archivos Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
