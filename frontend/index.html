@@ -43,12 +43,96 @@
           <h2>Resultados</h2>
           <div class="results-actions">
             <p class="meta" id="results-meta"></p>
+            <button id="add-column-btn" type="button" class="btn btn-add" disabled>
+              <span class="btn-icon">+</span> Añadir columna
+            </button>
             <button id="export-btn" type="button" class="btn" disabled>Exportar CSV</button>
           </div>
         </div>
         <div id="results-list" class="results-list" aria-live="polite"></div>
         <p class="attribution">Datos geográficos © OpenStreetMap contributors</p>
       </section>
+
+      <!-- Modal para añadir columna personalizada -->
+      <div id="column-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Añadir columna personalizada</h3>
+            <button id="close-modal" class="btn-close">&times;</button>
+          </div>
+          <form id="column-form" class="column-form">
+            <div class="field">
+              <label for="column-name">Nombre de la columna *</label>
+              <input id="column-name" type="text" placeholder="Ej. Precio estimado" required />
+            </div>
+
+            <div class="field">
+              <label for="column-type">Tipo de columna *</label>
+              <select id="column-type" required>
+                <option value="">Seleccionar tipo...</option>
+                <option value="selector">Selector (opciones con %)</option>
+                <option value="number">Número</option>
+                <option value="currency">Moneda</option>
+                <option value="date">Fecha</option>
+              </select>
+            </div>
+
+            <!-- Configuración específica para cada tipo -->
+            <div id="config-selector" class="config-section" style="display: none;">
+              <h4>Opciones del selector</h4>
+              <div id="selector-options">
+                <!-- Las opciones se añaden dinámicamente -->
+              </div>
+              <button type="button" id="add-option-btn" class="btn-secondary">+ Añadir opción</button>
+              <p class="help-text">La suma de porcentajes debe ser 100%</p>
+            </div>
+
+            <div id="config-number" class="config-section" style="display: none;">
+              <div class="field-group">
+                <div class="field">
+                  <label for="number-min">Mínimo *</label>
+                  <input id="number-min" type="number" step="any" placeholder="0" />
+                </div>
+                <div class="field">
+                  <label for="number-max">Máximo *</label>
+                  <input id="number-max" type="number" step="any" placeholder="100" />
+                </div>
+              </div>
+            </div>
+
+            <div id="config-currency" class="config-section" style="display: none;">
+              <div class="field-group">
+                <div class="field">
+                  <label for="currency-min">Mínimo (€) *</label>
+                  <input id="currency-min" type="number" step="any" placeholder="0" />
+                </div>
+                <div class="field">
+                  <label for="currency-max">Máximo (€) *</label>
+                  <input id="currency-max" type="number" step="any" placeholder="10000" />
+                </div>
+              </div>
+            </div>
+
+            <div id="config-date" class="config-section" style="display: none;">
+              <div class="field-group">
+                <div class="field">
+                  <label for="date-min">Fecha mínima *</label>
+                  <input id="date-min" type="date" />
+                </div>
+                <div class="field">
+                  <label for="date-max">Fecha máxima *</label>
+                  <input id="date-max" type="date" />
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancel-modal" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn">Añadir columna</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </main>
 
     <script type="module" src="./src/main.js"></script>

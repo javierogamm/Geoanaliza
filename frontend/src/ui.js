@@ -1,3 +1,5 @@
+import { getCustomColumns, generateCellValue, formatCellValue, formatCellValueForCSV } from './columnManager.js';
+
 const resultsList = document.getElementById('results-list');
 const resultsMeta = document.getElementById('results-meta');
 const statusMessage = document.getElementById('status-message');
@@ -5,6 +7,8 @@ const exportButton = document.getElementById('export-btn');
 
 // Guardamos los últimos puntos obtenidos para poder exportarlos
 let currentPoints = [];
+// Guardamos los datos generados para las columnas personalizadas
+let customColumnsData = new Map(); // Map<pointId, Map<columnId, value>>
 
 export function setStatus(message, isError = false) {
   statusMessage.textContent = message;
@@ -26,20 +30,37 @@ export function renderPoints(points) {
     return;
   }
 
+  // Generar datos para columnas personalizadas
+  generateCustomColumnsData();
+
   const table = document.createElement('table');
   table.className = 'results-table';
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
+
+  // Columnas base
   ['Nombre', 'Calle', 'Latitud', 'Longitud'].forEach((label) => {
     const th = document.createElement('th');
     th.textContent = label;
     headerRow.appendChild(th);
   });
+
+  // Columnas personalizadas
+  const customColumns = getCustomColumns();
+  customColumns.forEach((column) => {
+    const th = document.createElement('th');
+    th.textContent = column.name;
+    th.style.background = 'rgba(59, 130, 246, 0.12)'; // Color diferente para destacar
+    headerRow.appendChild(th);
+  });
+
   thead.appendChild(headerRow);
 
   const tbody = document.createElement('tbody');
-  currentPoints.forEach((point) => {
+  currentPoints.forEach((point, index) => {
     const row = document.createElement('tr');
+
+    // Celdas base
     const nameCell = document.createElement('td');
     nameCell.textContent = point.name || 'Punto sin nombre';
 
@@ -47,12 +68,21 @@ export function renderPoints(points) {
     streetCell.textContent = point.street || 'Dirección no disponible';
 
     const latCell = document.createElement('td');
-    latCell.textContent = point.lat.toFixed(5); // en pantalla, con punto
+    latCell.textContent = point.lat.toFixed(5);
 
     const lngCell = document.createElement('td');
-    lngCell.textContent = point.lng.toFixed(5); // en pantalla, con punto
+    lngCell.textContent = point.lng.toFixed(5);
 
     [nameCell, streetCell, latCell, lngCell].forEach((cell) => row.appendChild(cell));
+
+    // Celdas personalizadas
+    customColumns.forEach((column) => {
+      const cell = document.createElement('td');
+      const value = getCustomColumnValue(point.id, column.id);
+      cell.textContent = formatCellValue(column, value);
+      row.appendChild(cell);
+    });
+
     tbody.appendChild(row);
   });
 
@@ -61,6 +91,30 @@ export function renderPoints(points) {
   resultsList.appendChild(table);
 
   if (exportButton) exportButton.disabled = false;
+}
+
+// Genera los datos para todas las columnas personalizadas
+function generateCustomColumnsData() {
+  customColumnsData.clear();
+  const customColumns = getCustomColumns();
+
+  currentPoints.forEach((point, index) => {
+    const pointData = new Map();
+
+    customColumns.forEach((column) => {
+      const value = generateCellValue(column, index, currentPoints.length);
+      pointData.set(column.id, value);
+    });
+
+    customColumnsData.set(point.id, pointData);
+  });
+}
+
+// Obtiene el valor de una columna personalizada para un punto
+function getCustomColumnValue(pointId, columnId) {
+  const pointData = customColumnsData.get(pointId);
+  if (!pointData) return '';
+  return pointData.get(columnId) || '';
 }
 
 export function clearResults() {
@@ -91,14 +145,30 @@ export function exportCSV() {
     return;
   }
 
+  const customColumns = getCustomColumns();
   const headers = ['Nombre', 'Calle', 'Latitud', 'Longitud'];
 
-  const rows = currentPoints.map((point) => [
-    point.name || 'Punto sin nombre',
-    point.street || 'Dirección no disponible',
-    formatNumberForCsv(point.lat),
-    formatNumberForCsv(point.lng)
-  ]);
+  // Añadir headers de columnas personalizadas
+  customColumns.forEach((column) => {
+    headers.push(column.name);
+  });
+
+  const rows = currentPoints.map((point) => {
+    const row = [
+      point.name || 'Punto sin nombre',
+      point.street || 'Dirección no disponible',
+      formatNumberForCsv(point.lat),
+      formatNumberForCsv(point.lng)
+    ];
+
+    // Añadir valores de columnas personalizadas
+    customColumns.forEach((column) => {
+      const value = getCustomColumnValue(point.id, column.id);
+      row.push(formatCellValueForCSV(column, value));
+    });
+
+    return row;
+  });
 
   const csvContent = [headers, ...rows]
     .map((row) => row.map(escapeCSV).join(';')) // separador ;

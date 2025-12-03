@@ -6,12 +6,16 @@ import {
   setStatus,
   exportCSV
 } from './ui.js';
+import { initColumnModal, enableAddColumnButton, disableAddColumnButton } from './columnModal.js';
 
 const form = document.getElementById('search-form');
 const cityInput = document.getElementById('city');
 const neighbourhoodInput = document.getElementById('neighbourhood');
 const limitInput = document.getElementById('limit');
 const exportButton = document.getElementById('export-btn');
+
+// Variable para guardar los últimos puntos y poder re-renderizar
+let lastPointsData = null;
 
 const parseLimit = (value) => {
   const parsed = parseInt(value, 10);
@@ -20,9 +24,18 @@ const parseLimit = (value) => {
   return parsed;
 };
 
+// Inicializar el modal de columnas personalizadas
+initColumnModal(() => {
+  // Callback: cuando se añade una columna, re-renderizar la tabla
+  if (lastPointsData) {
+    renderPoints(lastPointsData.points);
+  }
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   clearResults();
+  disableAddColumnButton();
 
   const city = cityInput.value.trim();
   const neighbourhood = neighbourhoodInput.value.trim();
@@ -37,6 +50,7 @@ form.addEventListener('submit', async (event) => {
 
   try {
     const data = await fetchPoints({ city, neighbourhood, limit });
+    lastPointsData = data; // Guardamos los datos para re-renderizar
     renderMeta({
       city: data.city,
       neighbourhood: data.neighbourhood,
@@ -44,9 +58,11 @@ form.addEventListener('submit', async (event) => {
       returned: data.returned
     });
     renderPoints(data.points);
+    enableAddColumnButton(); // Habilitar botón de añadir columna
     setStatus('');
   } catch (error) {
     setStatus(error.message || 'No se pudo obtener puntos', true);
+    disableAddColumnButton();
   }
 });
 
