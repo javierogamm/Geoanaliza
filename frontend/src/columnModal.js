@@ -108,8 +108,9 @@ function addSelectorOption() {
   const optionDiv = document.createElement('div');
   optionDiv.className = 'selector-option';
   optionDiv.innerHTML = `
-    <input type="text" placeholder="Nombre de la opción" required />
-    <input type="number" min="0" max="100" step="1" placeholder="%" required />
+    <input type="text" class="option-reference" placeholder="Referencia" required />
+    <input type="text" class="option-value" placeholder="Valor" required />
+    <input type="number" class="option-percentage" min="0" max="100" step="1" placeholder="%" required />
     <button type="button" class="btn-remove" onclick="this.parentElement.remove()">✕</button>
   `;
 
@@ -120,9 +121,10 @@ function handleFormSubmit(e) {
   e.preventDefault();
 
   const columnName = document.getElementById('column-name').value.trim();
+  const columnReference = document.getElementById('column-reference').value.trim();
   const columnType = document.getElementById('column-type').value;
 
-  if (!columnName || !columnType) {
+  if (!columnName || !columnReference || !columnType) {
     alert('Por favor, completa todos los campos obligatorios');
     return;
   }
@@ -146,6 +148,7 @@ function handleFormSubmit(e) {
   // Añadir la columna
   addCustomColumn({
     name: columnName,
+    reference: columnReference,
     type: columnType,
     config: config
   });
@@ -190,17 +193,19 @@ function extractSelectorConfig() {
   let totalPercentage = 0;
 
   optionDivs.forEach((div) => {
-    const labelInput = div.querySelector('input[type="text"]');
-    const percentageInput = div.querySelector('input[type="number"]');
+    const referenceInput = div.querySelector('.option-reference');
+    const valueInput = div.querySelector('.option-value');
+    const percentageInput = div.querySelector('.option-percentage');
 
-    const label = labelInput.value.trim();
+    const reference = referenceInput.value.trim();
+    const value = valueInput.value.trim();
     const percentage = parseFloat(percentageInput.value);
 
-    if (!label || isNaN(percentage)) {
+    if (!reference || !value || isNaN(percentage)) {
       return;
     }
 
-    options.push({ label, percentage });
+    options.push({ reference, value, percentage });
     totalPercentage += percentage;
   });
 

@@ -19,6 +19,7 @@ export function addCustomColumn(columnConfig) {
   const column = {
     id: `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     name: columnConfig.name,
+    reference: columnConfig.reference,
     type: columnConfig.type,
     config: columnConfig.config
   };
@@ -59,8 +60,8 @@ export function generateCellValue(column, rowIndex, totalRows) {
 
 // Genera valor para columna tipo selector (con distribución de %)
 function generateSelectorValue(config, rowIndex, totalRows) {
-  // config.options: [{ label: 'Opción 1', percentage: 30 }, ...]
-  // Distribuimos según los porcentajes
+  // config.options: [{ reference: 'opt1', value: 'Opción 1', percentage: 30 }, ...]
+  // Distribuimos según los porcentajes y devolvemos el VALUE (no la referencia)
 
   if (!config.options || config.options.length === 0) {
     return '';
@@ -73,12 +74,12 @@ function generateSelectorValue(config, rowIndex, totalRows) {
   for (const option of config.options) {
     accumulated += option.percentage;
     if (percentage < accumulated) {
-      return option.label;
+      return option.value; // Devolvemos el valor, no la referencia
     }
   }
 
-  // Si llegamos aquí, devolvemos la última opción
-  return config.options[config.options.length - 1].label;
+  // Si llegamos aquí, devolvemos el valor de la última opción
+  return config.options[config.options.length - 1].value;
 }
 
 // Genera valor numérico aleatorio

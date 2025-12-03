@@ -357,17 +357,18 @@ select:focus {
 
 .selector-option {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr 1fr auto auto;
   gap: 10px;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.selector-option input[type="text"] {
+.selector-option .option-reference,
+.selector-option .option-value {
   flex: 1;
 }
 
-.selector-option input[type="number"] {
+.selector-option .option-percentage {
   width: 80px;
 }
 
