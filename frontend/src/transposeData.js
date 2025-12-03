@@ -61,71 +61,63 @@ function generateTransposedData(points, customColumnsData, expedientes) {
   const baseConfig = getBaseColumnsConfig();
   const customColumns = getCustomColumns();
 
-  // Agrupar por expediente
-  const groupedByExpediente = new Map();
+  // Headers: Nº Expediente | Nombre del tesauro | Tipo | Valor
+  const headers = [expedientes.name, 'Nombre del tesauro', 'Tipo', 'Valor'];
 
-  points.forEach((point, index) => {
+  const rows = [];
+
+  points.forEach((point) => {
     if (point.source !== 'expediente') return;
 
     const expedienteValue = point.expedienteValue;
-    if (!groupedByExpediente.has(expedienteValue)) {
-      groupedByExpediente.set(expedienteValue, []);
+
+    // Para cada columna base, crear una fila
+    if (baseConfig) {
+      // Calle
+      rows.push([
+        expedienteValue,
+        baseConfig.street.name,
+        'Texto',
+        point.street || ''
+      ]);
+
+      // Latitud
+      rows.push([
+        expedienteValue,
+        baseConfig.lat.name,
+        'Texto',
+        point.lat ? point.lat.toFixed(5) : ''
+      ]);
+
+      // Longitud
+      rows.push([
+        expedienteValue,
+        baseConfig.lng.name,
+        'Texto',
+        point.lng ? point.lng.toFixed(5) : ''
+      ]);
+    } else {
+      // Sin configuración base
+      rows.push([expedienteValue, 'Calle', 'Texto', point.street || '']);
+      rows.push([expedienteValue, 'Latitud', 'Texto', point.lat ? point.lat.toFixed(5) : '']);
+      rows.push([expedienteValue, 'Longitud', 'Texto', point.lng ? point.lng.toFixed(5) : '']);
     }
 
-    // Crear fila con todos los datos
-    const rowData = {
-      expediente: expedienteValue,
-      nombre: point.name,
-      street: point.street,
-      lat: point.lat,
-      lng: point.lng
-    };
-
-    // Añadir valores de columnas personalizadas
+    // Para cada columna personalizada, crear una fila
     const pointData = customColumnsData.get(point.id);
     if (pointData) {
       customColumns.forEach((column) => {
-        rowData[column.id] = pointData.get(column.id);
+        const value = pointData.get(column.id);
+        const formattedValue = formatCellValueForTable(column, value);
+
+        rows.push([
+          expedienteValue,
+          column.name,
+          'Texto',
+          formattedValue
+        ]);
       });
     }
-
-    groupedByExpediente.get(expedienteValue).push(rowData);
-  });
-
-  // Generar headers
-  const headers = [expedientes.name, 'Nombre'];
-
-  if (baseConfig) {
-    headers.push(baseConfig.street.name, baseConfig.lat.name, baseConfig.lng.name);
-  } else {
-    headers.push('Calle', 'Latitud', 'Longitud');
-  }
-
-  customColumns.forEach((column) => {
-    headers.push(column.name);
-  });
-
-  // Generar filas
-  const rows = [];
-  groupedByExpediente.forEach((data, expedienteValue) => {
-    // Primera fila del expediente con todos los datos
-    data.forEach((rowData, index) => {
-      const row = [
-        index === 0 ? expedienteValue : '', // Solo mostrar expediente en primera fila
-        rowData.nombre,
-        rowData.street || '',
-        rowData.lat ? rowData.lat.toFixed(5) : '',
-        rowData.lng ? rowData.lng.toFixed(5) : ''
-      ];
-
-      // Añadir valores de columnas personalizadas
-      customColumns.forEach((column) => {
-        const value = rowData[column.id];
-        row.push(formatCellValueForTable(column, value));
-      });
-
-      rows.push(row);
-    });
   });
 
   return { headers, rows };
