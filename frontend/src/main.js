@@ -55,9 +55,15 @@ function generateMockPoints(numRows) {
 
 // Función para generar puntos desde expedientes importados
 function generatePointsFromExpedientes(expedientes) {
-  mockPoints = [];
   const { values } = expedientes;
 
+  // Si ya tenemos puntos reales cargados, mantenerlos y solo añadir la columna de expedientes
+  if (lastPointsData && lastPointsData.points && lastPointsData.points.length > 0) {
+    return lastPointsData.points;
+  }
+
+  // En caso contrario, generar filas ficticias para mostrar los expedientes
+  mockPoints = [];
   for (let i = 0; i < values.length; i++) {
     mockPoints.push({
       id: `expediente_${i}`,
@@ -69,6 +75,8 @@ function generatePointsFromExpedientes(expedientes) {
       expedienteValue: values[i]
     });
   }
+
+  return mockPoints;
 }
 
 // Inicializar el modal de columnas personalizadas
@@ -99,8 +107,8 @@ initBaseColumnsModal((config) => {
 // Inicializar el módulo de importación de Excel
 initImportExcel((expedientes) => {
   // Cuando se importan expedientes, generar puntos y renderizar
-  generatePointsFromExpedientes(expedientes);
-  renderPoints(mockPoints);
+  const pointsToRender = generatePointsFromExpedientes(expedientes);
+  renderPoints(pointsToRender);
   // Mostrar botón de transponer
   showTransposeButton();
 });
