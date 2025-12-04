@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AppGeoAnaliza</title>
+    <link rel="stylesheet" href="./styles/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">OpenStreetMap powered</p>
+          <h1>AppGeoAnaliza</h1>
+          <p class="lead">
+            Introduce un municipio y, opcionalmente, un barrio para obtener puntos geolocalizados desde
+            OpenStreetMap.
+          </p>
+        </div>
+      </header>
+
+      <section class="panel">
+        <form id="search-form" class="form">
+          <div class="field">
+            <label for="city">Municipio *</label>
+            <input id="city" name="city" type="text" placeholder="Ej. Zaragoza" required />
+          </div>
+          <div class="field">
+            <label for="neighbourhood">Barrio (opcional)</label>
+            <input id="neighbourhood" name="neighbourhood" type="text" placeholder="Ej. Delicias" />
+          </div>
+          <div class="field">
+            <label for="limit">Nº de puntos</label>
+            <input id="limit" name="limit" type="number" min="1" max="100" value="20" />
+          </div>
+          <button type="submit" class="btn">Buscar puntos</button>
+        </form>
+        <p class="status" id="status-message"></p>
+      </section>
+
+      <section class="panel results">
+        <div class="results-header">
+          <h2>Resultados</h2>
+          <div class="results-actions">
+            <p class="meta" id="results-meta"></p>
+            <button id="export-btn" type="button" class="btn" disabled>Exportar CSV</button>
+          </div>
+        </div>
+        <div id="results-list" class="results-list" aria-live="polite"></div>
+        <p class="attribution">Datos geográficos © OpenStreetMap contributors</p>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
