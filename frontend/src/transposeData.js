@@ -172,6 +172,7 @@ function transposeAndShow() {
 function generateTransposedData(points, customColumnsData, expedientes, selectedFields) {
   const baseConfig = getBaseColumnsConfig();
   const customColumns = getCustomColumns();
+  const expedientesValues = expedientes?.values || [];
 
   // Headers para la vista previa: Código expedi | Nombre tarea | Crear tarea | Nombre campo | Tipo campo te | Valor campo | Valor campo a
   // (Nombre entid se añadirá al exportar)
@@ -187,13 +188,15 @@ function generateTransposedData(points, customColumnsData, expedientes, selected
 
   const rows = [];
 
-  points.forEach((point) => {
-    if (point.source !== 'expediente') return;
+  points.forEach((point, index) => {
+    const expedienteValue = expedientesValues[index] ?? point.expedienteValue ?? '';
+    const hasBaseFields = selectedFields.baseFields.length > 0 && baseConfig;
+    const hasCustomFields = selectedFields.customFields.length > 0;
 
-    const expedienteValue = point.expedienteValue;
+    if (!hasBaseFields && !hasCustomFields) return;
 
     // Para cada columna base seleccionada, crear una fila
-    if (baseConfig && selectedFields.baseFields.length > 0) {
+    if (hasBaseFields) {
       if (selectedFields.baseFields.includes('street')) {
         rows.push([
           expedienteValue,
@@ -213,7 +216,7 @@ function generateTransposedData(points, customColumnsData, expedientes, selected
           'Sí',
           baseConfig.lat.name,
           'Texto',
-          point.lat ? point.lat.toFixed(5) : '',
+          typeof point.lat === 'number' ? point.lat.toFixed(5) : '',
           ''
         ]);
       }
@@ -225,7 +228,7 @@ function generateTransposedData(points, customColumnsData, expedientes, selected
           'Sí',
           baseConfig.lng.name,
           'Texto',
-          point.lng ? point.lng.toFixed(5) : '',
+          typeof point.lng === 'number' ? point.lng.toFixed(5) : '',
           ''
         ]);
       }
@@ -233,7 +236,7 @@ function generateTransposedData(points, customColumnsData, expedientes, selected
 
     // Para cada columna personalizada seleccionada, crear una fila
     const pointData = customColumnsData.get(point.id);
-    if (pointData && selectedFields.customFields.length > 0) {
+    if (pointData && hasCustomFields) {
       customColumns.forEach((column) => {
         if (selectedFields.customFields.includes(column.id)) {
           const value = pointData.get(column.id);
