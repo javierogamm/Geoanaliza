@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "name": "appgeoanaliza",
+  "builds": [
+    {
+      "src": "frontend/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://appgeoanaliza.onrender.com/api/$1"
+    },
+    {
+      "src": "/styles/(.*)",
+      "dest": "/frontend/styles/$1"
+    },
+    {
+      "src": "/src/(.*)",
+      "dest": "/frontend/src/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/frontend/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ]
+}
