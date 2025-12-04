@@ -8,20 +8,44 @@ const closeBtn = document.getElementById('close-transpose-modal');
 const exportBtn = document.getElementById('export-transposed-excel');
 const tableContainer = document.getElementById('transposed-table-container');
 
+// Modal de selección de campos
+const selectFieldsModal = document.getElementById('select-fields-modal');
+const selectFieldsForm = document.getElementById('select-fields-form');
+const closeSelectFieldsBtn = document.getElementById('close-select-fields-modal');
+const cancelSelectFieldsBtn = document.getElementById('cancel-select-fields');
+const baseFieldsCheckboxes = document.getElementById('base-fields-checkboxes');
+const customFieldsCheckboxes = document.getElementById('custom-fields-checkboxes');
+
 // Datos transpuestos
 let transposedData = null;
+let currentPoints = null;
+let currentCustomColumnsData = null;
+let selectedFields = null;
 
 export function initTranspose(getCurrentPoints, getCustomColumnsData) {
   // Mostrar/ocultar botón según haya expedientes
   transposeBtn.addEventListener('click', () => {
     const points = getCurrentPoints();
     const customColumnsData = getCustomColumnsData();
-    transposeAndShow(points, customColumnsData);
+    currentPoints = points;
+    currentCustomColumnsData = customColumnsData;
+    showFieldSelectionModal();
   });
 
   closeBtn.addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
+  });
+
+  closeSelectFieldsBtn.addEventListener('click', closeSelectFieldsModal);
+  cancelSelectFieldsBtn.addEventListener('click', closeSelectFieldsModal);
+  selectFieldsModal.addEventListener('click', (e) => {
+    if (e.target === selectFieldsModal) closeSelectFieldsModal();
+  });
+
+  selectFieldsForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleFieldSelection();
   });
 
   exportBtn.addEventListener('click', exportToExcel);
@@ -35,8 +59,8 @@ export function hideTransposeButton() {
   transposeBtn.style.display = 'none';
 }
 
-function transposeAndShow(points, customColumnsData) {
-  if (!points || points.length === 0) {
+function showFieldSelectionModal() {
+  if (!currentPoints || currentPoints.length === 0) {
     alert('No hay datos para transponer');
     return;
   }
@@ -47,8 +71,96 @@ function transposeAndShow(points, customColumnsData) {
     return;
   }
 
+  // Limpiar checkboxes
+  baseFieldsCheckboxes.innerHTML = '';
+  customFieldsCheckboxes.innerHTML = '';
+
+  // Añadir checkboxes para columnas base
+  const baseConfig = getBaseColumnsConfig();
+  if (baseConfig) {
+    ['street', 'lat', 'lng'].forEach((field) => {
+      const checkboxItem = document.createElement('div');
+      checkboxItem.className = 'checkbox-item';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = `field-base-${field}`;
+      checkbox.value = field;
+      checkbox.name = 'base-field';
+      checkbox.checked = true; // Por defecto activado
+
+      const label = document.createElement('label');
+      label.htmlFor = `field-base-${field}`;
+      label.textContent = baseConfig[field].name;
+
+      checkboxItem.appendChild(checkbox);
+      checkboxItem.appendChild(label);
+      baseFieldsCheckboxes.appendChild(checkboxItem);
+    });
+  }
+
+  // Añadir checkboxes para columnas personalizadas
+  const customColumns = getCustomColumns();
+  customColumns.forEach((column) => {
+    const checkboxItem = document.createElement('div');
+    checkboxItem.className = 'checkbox-item';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `field-custom-${column.id}`;
+    checkbox.value = column.id;
+    checkbox.name = 'custom-field';
+    checkbox.checked = true; // Por defecto activado
+
+    const label = document.createElement('label');
+    label.htmlFor = `field-custom-${column.id}`;
+    label.textContent = column.name;
+
+    checkboxItem.appendChild(checkbox);
+    checkboxItem.appendChild(label);
+    customFieldsCheckboxes.appendChild(checkboxItem);
+  });
+
+  // Mostrar modal
+  selectFieldsModal.classList.add('active');
+}
+
+function closeSelectFieldsModal() {
+  selectFieldsModal.classList.remove('active');
+}
+
+function handleFieldSelection() {
+  // Recoger campos seleccionados
+  const baseFields = [];
+  const customFields = [];
+
+  baseFieldsCheckboxes.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
+    baseFields.push(checkbox.value);
+  });
+
+  customFieldsCheckboxes.querySelectorAll('input[type="checkbox"]:checked').forEach((checkbox) => {
+    customFields.push(checkbox.value);
+  });
+
+  if (baseFields.length === 0 && customFields.length === 0) {
+    alert('Debes seleccionar al menos un campo para transponer');
+    return;
+  }
+
+  selectedFields = { baseFields, customFields };
+
+  // Cerrar modal de selección
+  closeSelectFieldsModal();
+
+  // Generar y mostrar datos transpuestos
+  transposeAndShow();
+}
+
+function transposeAndShow() {
+  const expedientes = getExpedientesData();
+
   // Generar datos transpuestos
-  transposedData = generateTransposedData(points, customColumnsData, expedientes);
+  transposedData = generateTransposedData(currentPoints, currentCustomColumnsData, expedientes, selectedFields);
 
   // Renderizar tabla
   renderTransposedTable(transposedData);
@@ -57,12 +169,21 @@ function transposeAndShow(points, customColumnsData) {
   modal.classList.add('active');
 }
 
-function generateTransposedData(points, customColumnsData, expedientes) {
+function generateTransposedData(points, customColumnsData, expedientes, selectedFields) {
   const baseConfig = getBaseColumnsConfig();
   const customColumns = getCustomColumns();
 
-  // Headers: Nº Expediente | Nombre del tesauro | Tipo | Valor
-  const headers = [expedientes.name, 'Nombre del tesauro', 'Tipo', 'Valor'];
+  // Headers para la vista previa: Código expedi | Nombre tarea | Crear tarea | Nombre campo | Tipo campo te | Valor campo | Valor campo a
+  // (Nombre entid se añadirá al exportar)
+  const headers = [
+    'Código expedi',
+    'Nombre tarea',
+    'Crear tarea',
+    'Nombre campo',
+    'Tipo campo te',
+    'Valor campo',
+    'Valor campo a'
+  ];
 
   const rows = [];
 
@@ -71,51 +192,63 @@ function generateTransposedData(points, customColumnsData, expedientes) {
 
     const expedienteValue = point.expedienteValue;
 
-    // Para cada columna base, crear una fila
-    if (baseConfig) {
-      // Calle
-      rows.push([
-        expedienteValue,
-        baseConfig.street.name,
-        'Texto',
-        point.street || ''
-      ]);
-
-      // Latitud
-      rows.push([
-        expedienteValue,
-        baseConfig.lat.name,
-        'Texto',
-        point.lat ? point.lat.toFixed(5) : ''
-      ]);
-
-      // Longitud
-      rows.push([
-        expedienteValue,
-        baseConfig.lng.name,
-        'Texto',
-        point.lng ? point.lng.toFixed(5) : ''
-      ]);
-    } else {
-      // Sin configuración base
-      rows.push([expedienteValue, 'Calle', 'Texto', point.street || '']);
-      rows.push([expedienteValue, 'Latitud', 'Texto', point.lat ? point.lat.toFixed(5) : '']);
-      rows.push([expedienteValue, 'Longitud', 'Texto', point.lng ? point.lng.toFixed(5) : '']);
-    }
-
-    // Para cada columna personalizada, crear una fila
-    const pointData = customColumnsData.get(point.id);
-    if (pointData) {
-      customColumns.forEach((column) => {
-        const value = pointData.get(column.id);
-        const formattedValue = formatCellValueForTable(column, value);
-
+    // Para cada columna base seleccionada, crear una fila
+    if (baseConfig && selectedFields.baseFields.length > 0) {
+      if (selectedFields.baseFields.includes('street')) {
         rows.push([
           expedienteValue,
-          column.name,
+          '', // Nombre tarea (se rellenará al exportar)
+          'Sí', // Crear tarea
+          baseConfig.street.name,
           'Texto',
-          formattedValue
+          point.street || '',
+          '' // Valor campo adicional
         ]);
+      }
+
+      if (selectedFields.baseFields.includes('lat')) {
+        rows.push([
+          expedienteValue,
+          '', // Nombre tarea
+          'Sí',
+          baseConfig.lat.name,
+          'Texto',
+          point.lat ? point.lat.toFixed(5) : '',
+          ''
+        ]);
+      }
+
+      if (selectedFields.baseFields.includes('lng')) {
+        rows.push([
+          expedienteValue,
+          '', // Nombre tarea
+          'Sí',
+          baseConfig.lng.name,
+          'Texto',
+          point.lng ? point.lng.toFixed(5) : '',
+          ''
+        ]);
+      }
+    }
+
+    // Para cada columna personalizada seleccionada, crear una fila
+    const pointData = customColumnsData.get(point.id);
+    if (pointData && selectedFields.customFields.length > 0) {
+      customColumns.forEach((column) => {
+        if (selectedFields.customFields.includes(column.id)) {
+          const value = pointData.get(column.id);
+          const formattedValue = formatCellValueForTable(column, value);
+
+          rows.push([
+            expedienteValue,
+            '', // Nombre tarea
+            'Sí',
+            column.name,
+            'Texto',
+            formattedValue,
+            ''
+          ]);
+        }
       });
     }
   });
@@ -196,13 +329,53 @@ function exportToExcel() {
     return;
   }
 
+  // Preguntar Nombre de la Entidad
+  const nombreEntidad = prompt('Nombre de la Entidad:');
+  if (!nombreEntidad) {
+    alert('Debes introducir el Nombre de la Entidad');
+    return;
+  }
+
+  // Preguntar Nombre de la tarea
+  const nombreTarea = prompt('Nombre de la tarea:');
+  if (!nombreTarea) {
+    alert('Debes introducir el Nombre de la tarea');
+    return;
+  }
+
   const { headers, rows } = transposedData;
+
+  // Crear headers para exportación: Nombre entid | Código expedi | Nombre tarea | Crear tarea | Nombre campo | Tipo campo te | Valor campo | Valor campo a
+  const exportHeaders = [
+    'Nombre entid',
+    'Código expedi',
+    'Nombre tarea',
+    'Crear tarea',
+    'Nombre campo',
+    'Tipo campo te',
+    'Valor campo',
+    'Valor campo a'
+  ];
+
+  // Crear filas para exportación añadiendo Nombre entidad al inicio y rellenando Nombre tarea
+  const exportRows = rows.map((row) => {
+    return [
+      nombreEntidad,      // Nombre entid
+      row[0],             // Código expedi
+      nombreTarea,        // Nombre tarea
+      row[2],             // Crear tarea
+      row[3],             // Nombre campo
+      row[4],             // Tipo campo te
+      row[5],             // Valor campo
+      row[6]              // Valor campo a
+    ];
+  });
 
   // Crear workbook
   const wb = XLSX.utils.book_new();
 
   // Crear datos para la hoja
-  const wsData = [headers, ...rows];
+  const wsData = [exportHeaders, ...exportRows];
 
   // Crear worksheet
   const ws = XLSX.utils.aoa_to_sheet(wsData);
@@ -210,6 +383,6 @@ function exportToExcel() {
   // Añadir worksheet al workbook
   XLSX.utils.book_append_sheet(wb, ws, 'Datos Transpuestos');
 
-  // Generar archivo Excel
-  XLSX.writeFile(wb, 'datos_transpuestos.xlsx');
+  // Generar archivo Excel con codificación UTF-8
+  XLSX.writeFile(wb, 'datos_transpuestos.xlsx', { bookType: 'xlsx', type: 'array', compression: true });
 }

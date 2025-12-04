@@ -59,6 +59,38 @@
         <p class="attribution">Datos geográficos © OpenStreetMap contributors</p>
       </section>
 
+      <!-- Modal para seleccionar campos a transponer -->
+      <div id="select-fields-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Seleccionar campos a transponer</h3>
+            <button id="close-select-fields-modal" class="btn-close">&times;</button>
+          </div>
+          <form id="select-fields-form" class="column-form">
+            <p class="help-text" style="margin-top: 0;">Selecciona los campos que deseas incluir en la transposición</p>
+
+            <div class="field">
+              <label style="font-weight: 600;">Columnas base</label>
+              <div id="base-fields-checkboxes" class="checkbox-group">
+                <!-- Los checkboxes de columnas base se añaden dinámicamente -->
+              </div>
+            </div>
+
+            <div class="field">
+              <label style="font-weight: 600;">Columnas personalizadas</label>
+              <div id="custom-fields-checkboxes" class="checkbox-group">
+                <!-- Los checkboxes de columnas personalizadas se añaden dinámicamente -->
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancel-select-fields" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn">Transponer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Modal para tabla transpuesta -->
       <div id="transpose-modal" class="modal">
         <div class="modal-content modal-large">
