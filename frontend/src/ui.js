@@ -90,7 +90,9 @@ export function renderPoints(points) {
     // Celda de expediente (si existe, va primero)
     if (expedientes) {
       const expedienteCell = document.createElement('td');
-      expedienteCell.textContent = isExpedientePoint ? (point.expedienteValue || '') : '';
+      const expedienteValueFromImport = expedientes.values ? expedientes.values[index] : '';
+      const expedienteValue = expedienteValueFromImport ?? (isExpedientePoint ? point.expedienteValue : '');
+      expedienteCell.textContent = expedienteValue || '';
       expedienteCell.style.fontWeight = '600';
       row.appendChild(expedienteCell);
     }
@@ -191,14 +193,19 @@ function renderEmptyTableWithColumns(customColumns) {
 
 // Genera los datos para todas las columnas personalizadas
 function generateCustomColumnsData() {
-  customColumnsData.clear();
   const customColumns = getCustomColumns();
+  const previousData = new Map(customColumnsData);
+  customColumnsData = new Map();
 
   currentPoints.forEach((point, index) => {
     const pointData = new Map();
+    const existingPointData = previousData.get(point.id);
 
     customColumns.forEach((column) => {
-      const value = generateCellValue(column, index, currentPoints.length);
+      const existingValue = existingPointData ? existingPointData.get(column.id) : undefined;
+      const value = existingValue !== undefined
+        ? existingValue
+        : generateCellValue(column, index, currentPoints.length);
       pointData.set(column.id, value);
     });
 
@@ -273,13 +280,15 @@ export function exportCSV() {
     headers.push(column.name);
   });
 
-  const rows = currentPoints.map((point) => {
+  const rows = currentPoints.map((point, index) => {
     const row = [];
 
     // Valor del expediente (si existe, va primero)
     if (expedientes) {
+      const expedienteValueFromImport = expedientes.values ? expedientes.values[index] : '';
       const isExpedientePoint = point.source === 'expediente';
-      row.push(isExpedientePoint ? (point.expedienteValue || '') : '');
+      const value = expedienteValueFromImport ?? (isExpedientePoint ? (point.expedienteValue || '') : '');
+      row.push(value || '');
     }
 
     // Valores base
