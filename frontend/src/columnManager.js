@@ -41,6 +41,10 @@ export function clearCustomColumns() {
 // Genera un valor aleatorio para una celda según el tipo de columna
 export function generateCellValue(column, rowIndex, totalRows) {
   switch (column.type) {
+    case 'csv':
+      // Para columnas CSV, devolver el valor pre-definido según el índice
+      return getCsvValue(column.config, rowIndex);
+
     case 'selector':
       return generateSelectorValue(column.config, rowIndex, totalRows);
 
@@ -56,6 +60,18 @@ export function generateCellValue(column, rowIndex, totalRows) {
     default:
       return '';
   }
+}
+
+// Obtiene el valor de una columna CSV según el índice de fila
+function getCsvValue(config, rowIndex) {
+  if (!config.values || !Array.isArray(config.values)) {
+    return '';
+  }
+  // Si el índice está fuera de rango, devolver vacío
+  if (rowIndex >= config.values.length) {
+    return '';
+  }
+  return config.values[rowIndex] || '';
 }
 
 // Genera valor para columna tipo selector (con distribución de %)
@@ -113,6 +129,7 @@ function generateDateValue(config) {
 // Formatea un valor para mostrar en la tabla
 export function formatCellValue(column, value) {
   switch (column.type) {
+    case 'csv':
     case 'selector':
     case 'number':
       return String(value);
@@ -150,6 +167,7 @@ function formatDate(date) {
 // Formatea un valor para exportar a CSV
 export function formatCellValueForCSV(column, value) {
   switch (column.type) {
+    case 'csv':
     case 'selector':
       return String(value);
 

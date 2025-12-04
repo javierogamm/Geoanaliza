@@ -46,6 +46,9 @@
             <button id="import-excel-btn" type="button" class="btn btn-import">
               📊 Importar Expedientes
             </button>
+            <button id="import-csv-btn" type="button" class="btn btn-import">
+              📄 Importar CSV
+            </button>
             <button id="transpose-btn" type="button" class="btn btn-transpose" style="display: none;">
               🔄 Transponer datos
             </button>
@@ -147,6 +150,48 @@
 
             <div class="modal-actions">
               <button type="button" id="cancel-import-modal" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn">Importar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal para importar CSV -->
+      <div id="import-csv-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Importar columna desde CSV</h3>
+            <button id="close-csv-modal" class="btn-close">&times;</button>
+          </div>
+          <form id="csv-form" class="column-form">
+            <p class="help-text" style="margin-top: 0;">Selecciona un archivo CSV para importar una columna</p>
+
+            <div class="field">
+              <label for="csv-file">Archivo CSV *</label>
+              <input id="csv-file" type="file" accept=".csv" required />
+              <p class="help-text">Formato soportado: .csv (separado por comas o punto y coma)</p>
+            </div>
+
+            <div class="field">
+              <label for="csv-column-select">Columna a importar *</label>
+              <select id="csv-column-select" required disabled>
+                <option value="">Primero carga un archivo...</option>
+              </select>
+              <p class="help-text">Selecciona la columna del CSV que quieres añadir a la tabla</p>
+            </div>
+
+            <div class="field">
+              <label for="csv-column-name">Nombre del tesauro *</label>
+              <input id="csv-column-name" type="text" placeholder="Ej. Nueva columna" required />
+            </div>
+
+            <div class="field">
+              <label for="csv-column-reference">Referencia *</label>
+              <input id="csv-column-reference" type="text" placeholder="Ej. nueva_columna" required />
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancel-csv-modal" class="btn-secondary">Cancelar</button>
               <button type="submit" class="btn">Importar</button>
             </div>
           </form>

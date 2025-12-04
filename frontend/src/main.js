@@ -11,7 +11,9 @@ import {
 import { initColumnModal } from './columnModal.js';
 import { initBaseColumnsModal, openBaseColumnsModal, hasBaseColumnsConfig } from './baseColumnsModal.js';
 import { initImportExcel, getExpedientesData, hasExpedientes } from './importExcel.js';
+import { initImportCsv } from './importCsv.js';
 import { initTranspose, showTransposeButton, hideTransposeButton } from './transposeData.js';
+import { addCustomColumn } from './columnManager.js';
 
 const form = document.getElementById('search-form');
 const cityInput = document.getElementById('city');
@@ -101,6 +103,28 @@ initImportExcel((expedientes) => {
   renderPoints(mockPoints);
   // Mostrar botón de transponer
   showTransposeButton();
+});
+
+// Inicializar el módulo de importación de CSV
+initImportCsv((columnData) => {
+  // Cuando se importa una columna CSV, añadirla como columna personalizada
+  addCustomColumn({
+    name: columnData.name,
+    reference: columnData.reference,
+    type: 'csv',
+    config: {
+      values: columnData.values
+    }
+  });
+
+  // Re-renderizar la tabla con la nueva columna
+  if (lastPointsData && lastPointsData.points && lastPointsData.points.length > 0) {
+    renderPoints(lastPointsData.points);
+  } else if (mockPoints.length > 0) {
+    renderPoints(mockPoints);
+  } else {
+    renderPoints([]);
+  }
 });
 
 // Inicializar el módulo de transposición
