@@ -18,7 +18,3 @@
 
 ## Versión 1.2.1 - 2025-02-05
 - Añadidos logs detallados en la ruta `/api/points` y en la consulta a Overpass para diagnosticar por qué no se devuelven puntos.
-
-## Versión 1.2.2 - 2025-02-05
-- Declarada la versión 2 de la configuración de Vercel para validar correctamente el runtime Node.js 20 en las funciones serverless.
-- Actualizada la versión del paquete raíz a `1.2.2` para reflejar la consolidación del despliegue en Vercel.
