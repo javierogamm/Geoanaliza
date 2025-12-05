@@ -352,19 +352,19 @@
 
             <!-- Paso 1: Información básica -->
             <div class="field">
-              <label for="num-expedients">Número de expedientes *</label>
-              <input id="num-expedients" type="number" min="1" max="1000" value="10" required />
+              <label for="num-expedients">Número de expedientes</label>
+              <input id="num-expedients" type="number" min="1" max="1000" value="10" />
               <p class="help-text">Cantidad de expedientes a generar</p>
             </div>
 
             <div class="field">
-              <label for="entity-name">Nombre de la entidad *</label>
-              <input id="entity-name" type="text" placeholder="Ej. Ayuntamiento de Zaragoza" required />
+              <label for="entity-name">Nombre de la entidad</label>
+              <input id="entity-name" type="text" placeholder="Ej. Ayuntamiento de Zaragoza" />
             </div>
 
             <div class="field">
-              <label for="procedure-name">Nombre del procedimiento *</label>
-              <input id="procedure-name" type="text" placeholder="Ej. Licencia de obras" required />
+              <label for="procedure-name">Nombre del procedimiento</label>
+              <input id="procedure-name" type="text" placeholder="Ej. Licencia de obras" />
             </div>
 
             <!-- Paso 2: Asuntos libres -->
@@ -373,13 +373,13 @@
               <p class="help-text">Define los asuntos y su porcentaje de distribución</p>
               <div id="asunto-options">
                 <div class="option-row">
-                  <input type="text" class="asunto-label" placeholder="Nombre del asunto" required />
-                  <input type="number" class="asunto-percent" min="0" max="100" placeholder="%" required />
+                  <input type="text" class="asunto-label" placeholder="Nombre del asunto" />
+                  <input type="number" class="asunto-percent" min="0" max="100" placeholder="%" />
                   <button type="button" class="btn-remove-option">×</button>
                 </div>
               </div>
               <button type="button" id="add-asunto-btn" class="btn-secondary">+ Añadir asunto</button>
-              <p class="help-text">La suma de porcentajes debe ser 100%</p>
+              <p class="help-text">La suma de porcentajes debe ser 100% (si defines asuntos)</p>
             </div>
 
             <!-- Paso 3: Unidades gestoras -->
@@ -388,13 +388,13 @@
               <p class="help-text">Define las unidades gestoras y su porcentaje de distribución</p>
               <div id="unidad-options">
                 <div class="option-row">
-                  <input type="text" class="unidad-label" placeholder="Nombre de la unidad" required />
-                  <input type="number" class="unidad-percent" min="0" max="100" placeholder="%" required />
+                  <input type="text" class="unidad-label" placeholder="Nombre de la unidad" />
+                  <input type="number" class="unidad-percent" min="0" max="100" placeholder="%" />
                   <button type="button" class="btn-remove-option">×</button>
                 </div>
               </div>
               <button type="button" id="add-unidad-btn" class="btn-secondary">+ Añadir unidad</button>
-              <p class="help-text">La suma de porcentajes debe ser 100%</p>
+              <p class="help-text">La suma de porcentajes debe ser 100% (si defines unidades)</p>
             </div>
 
             <!-- Paso 4: Rango de fechas -->
@@ -402,12 +402,12 @@
               <label style="font-weight: 600;">Rango de fechas</label>
               <div class="field-group">
                 <div class="field">
-                  <label for="date-from">Fecha desde *</label>
-                  <input id="date-from" type="date" required />
+                  <label for="date-from">Fecha desde</label>
+                  <input id="date-from" type="date" />
                 </div>
                 <div class="field">
-                  <label for="date-to">Fecha hasta *</label>
-                  <input id="date-to" type="date" required />
+                  <label for="date-to">Fecha hasta</label>
+                  <input id="date-to" type="date" />
                 </div>
               </div>
             </div>

@@ -159,7 +159,8 @@ function getOptionsData(type) {
     const label = labelInput.value.trim();
     const percent = parseFloat(percentInput.value);
 
-    if (label && !isNaN(percent)) {
+    // Solo añadir si tiene etiqueta y porcentaje válido
+    if (label && !isNaN(percent) && percent > 0) {
       options.push({ label, percent });
     }
   });
@@ -168,9 +169,9 @@ function getOptionsData(type) {
 }
 
 function validatePercentages(options, type) {
+  // Si no hay opciones, no es necesario validar
   if (options.length === 0) {
-    alert(`Debe definir al menos un ${type === 'asunto' ? 'asunto' : 'unidad gestora'}`);
-    return false;
+    return true;
   }
 
   const total = options.reduce((sum, opt) => sum + opt.percent, 0);
@@ -186,26 +187,31 @@ function validatePercentages(options, type) {
 function handleFormSubmit(e) {
   e.preventDefault();
 
-  const numExpedients = parseInt(numExpedientsInput.value, 10);
+  const numExpedients = parseInt(numExpedientsInput.value, 10) || 10;
   const entityName = entityNameInput.value.trim();
   const procedureName = procedureNameInput.value.trim();
   const asuntos = getOptionsData('asunto');
   const unidades = getOptionsData('unidad');
-  const dateFrom = new Date(dateFromInput.value);
-  const dateTo = new Date(dateToInput.value);
+  const dateFromValue = dateFromInput.value;
+  const dateToValue = dateToInput.value;
 
-  // Validaciones
-  if (!entityName || !procedureName) {
-    alert('Por favor, completa todos los campos obligatorios');
-    return;
+  // Validaciones solo si hay datos
+  if (asuntos.length > 0) {
+    if (!validatePercentages(asuntos, 'asunto')) return;
   }
 
-  if (!validatePercentages(asuntos, 'asunto')) return;
-  if (!validatePercentages(unidades, 'unidad')) return;
+  if (unidades.length > 0) {
+    if (!validatePercentages(unidades, 'unidad')) return;
+  }
 
-  if (dateFrom >= dateTo) {
-    alert('La fecha "desde" debe ser anterior a la fecha "hasta"');
-    return;
+  // Validar fechas solo si ambas están definidas
+  if (dateFromValue && dateToValue) {
+    const dateFrom = new Date(dateFromValue);
+    const dateTo = new Date(dateToValue);
+    if (dateFrom >= dateTo) {
+      alert('La fecha "desde" debe ser anterior a la fecha "hasta"');
+      return;
+    }
   }
 
   // Generar expedientes
@@ -215,8 +221,8 @@ function handleFormSubmit(e) {
     procedureName,
     asuntos,
     unidades,
-    dateFrom,
-    dateTo
+    dateFrom: dateFromValue ? new Date(dateFromValue) : null,
+    dateTo: dateToValue ? new Date(dateToValue) : null
   });
 
   closeConfigModal();
@@ -227,33 +233,36 @@ function handleFormSubmit(e) {
 function generateExpedients({ numExpedients, entityName, procedureName, asuntos, unidades, dateFrom, dateTo }) {
   const expedients = [];
 
-  // Distribuir asuntos según porcentajes
-  const asuntoDistribution = distributeByPercentage(asuntos, numExpedients);
+  // Distribuir asuntos según porcentajes (solo si hay asuntos definidos)
+  const asuntoDistribution = asuntos.length > 0 ? distributeByPercentage(asuntos, numExpedients) : [];
 
-  // Distribuir unidades según porcentajes
-  const unidadDistribution = distributeByPercentage(unidades, numExpedients);
+  // Distribuir unidades según porcentajes (solo si hay unidades definidas)
+  const unidadDistribution = unidades.length > 0 ? distributeByPercentage(unidades, numExpedients) : [];
 
   for (let i = 0; i < numExpedients; i++) {
-    const numExpediente = `EXP-${String(i + 1).padStart(6, '0')}`;
-    const asunto = asuntoDistribution[i];
-    const unidad = unidadDistribution[i];
-    const fechaApertura = randomDate(dateFrom, dateTo);
-    const fechaFinalizacion = randomDateAfter(fechaApertura, dateTo);
+    const asunto = asuntoDistribution.length > 0 ? asuntoDistribution[i] : '';
+    const unidad = unidadDistribution.length > 0 ? unidadDistribution[i] : '';
+
+    // Generar fecha de apertura solo si hay rango de fechas definido
+    let fechaApertura = '';
+    if (dateFrom && dateTo) {
+      fechaApertura = formatDate(randomDate(dateFrom, dateTo));
+    }
 
     expedients.push({
       entidad: entityName,
-      numeroExpediente: numExpediente,
+      numeroExpediente: '', // Vacío
       nombreProcedimiento: procedureName,
-      serieDocumental: generarSerieDocumental(procedureName),
+      serieDocumental: '', // Vacío
       asuntoLibre: asunto,
-      asuntoFijo: '', // Vacío por ahora
+      asuntoFijo: '',
       unidadGestora: unidad,
-      asignacionTemporal1: '', // Vacío por ahora
-      asignacionTemporal2: '', // Vacío por ahora
-      eliminarAsignacion: '', // Vacío por ahora
-      confidencialidad: randomChoice(['Público', 'Confidencial', 'Reservado']),
-      fechaApertura: formatDate(fechaApertura),
-      fechaFinalizacion: fechaFinalizacion ? formatDate(fechaFinalizacion) : ''
+      asignacionTemporal1: '',
+      asignacionTemporal2: '',
+      eliminarAsignacion: '',
+      confidencialidad: '', // Vacío
+      fechaApertura: fechaApertura,
+      fechaFinalizacion: '' // Vacío
     });
   }
 
