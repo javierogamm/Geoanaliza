@@ -156,12 +156,35 @@ initImportCsv((columnData) => {
 // Inicializar el módulo de transposición
 initTranspose(getCurrentPoints, getCustomColumnsDataMap);
 
-// Inicializar el mapa
-initMap('map-container');
+// Inicializar el mapa cuando Leaflet esté disponible
+function initializeMap() {
+  if (typeof L !== 'undefined' && L.Draw) {
+    try {
+      initMap('map-container');
+      console.log('Mapa inicializado correctamente');
+    } catch (error) {
+      console.error('Error al inicializar el mapa:', error);
+      setStatus('Error al cargar el mapa', true);
+    }
+  } else {
+    console.log('Esperando a que Leaflet se cargue...');
+    setTimeout(initializeMap, 100);
+  }
+}
+
+// Iniciar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeMap);
+} else {
+  initializeMap();
+}
 
 // Event listener para buscar por área dibujada en el mapa
 searchByAreaBtn.addEventListener('click', async () => {
+  console.log('Click en botón de búsqueda por área');
   const bbox = getSelectedBoundingBox();
+  console.log('Bounding box obtenido:', bbox);
+
   if (!bbox) {
     setStatus('Debes dibujar un área en el mapa primero.', true);
     return;
@@ -169,10 +192,12 @@ searchByAreaBtn.addEventListener('click', async () => {
 
   // Si no hay configuración de tesauros base, mostrar modal
   if (!hasBaseColumnsConfig()) {
+    console.log('No hay configuración de tesauros, abriendo modal');
     pendingSearch = { type: 'bbox', bbox };
     openBaseColumnsModal();
   } else {
     // Si ya hay configuración, proceder con la búsqueda por bbox
+    console.log('Iniciando búsqueda por bbox:', bbox);
     await performSearchByBbox(bbox);
   }
 });
@@ -241,14 +266,20 @@ async function performSearch() {
 }
 
 async function performSearchByBbox(bbox) {
+  console.log('=== Iniciando performSearchByBbox ===');
+  console.log('Bbox recibido:', bbox);
   clearResults();
 
   const limit = parseLimit(limitInput.value);
+  console.log('Límite de puntos:', limit);
 
   setStatus('Buscando puntos en el área seleccionada...');
 
   try {
+    console.log('Llamando a fetchPointsByBbox...');
     const data = await fetchPointsByBbox({ bbox, limit });
+    console.log('Datos recibidos del backend:', data);
+
     lastPointsData = data; // Guardamos los datos para re-renderizar
     mockPoints = []; // Limpiar puntos ficticios cuando se cargan datos reales
 
@@ -262,11 +293,14 @@ async function performSearchByBbox(bbox) {
 
     // Mostrar puntos en el mapa
     if (data.points && data.points.length > 0) {
+      console.log('Mostrando', data.points.length, 'puntos en el mapa');
       displayPointsOnMap(data.points);
     }
 
     setStatus('');
+    console.log('=== Búsqueda completada exitosamente ===');
   } catch (error) {
+    console.error('Error en búsqueda por bbox:', error);
     setStatus(error.message || 'No se pudo obtener puntos', true);
   }
 }

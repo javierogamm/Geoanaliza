@@ -102,17 +102,23 @@ export function initMap(containerId) {
  * @returns {Object|null} Objeto con { south, north, west, east } o null si no hay área
  */
 export function getSelectedBoundingBox() {
+  console.log('getSelectedBoundingBox llamado, currentLayer:', currentLayer);
+
   if (!currentLayer) {
+    console.log('No hay capa dibujada');
     return null;
   }
 
   const bounds = currentLayer.getBounds();
-  return {
+  const bbox = {
     south: bounds.getSouth(),
     north: bounds.getNorth(),
     west: bounds.getWest(),
     east: bounds.getEast(),
   };
+
+  console.log('Bounding box calculado:', bbox);
+  return bbox;
 }
 
 /**
