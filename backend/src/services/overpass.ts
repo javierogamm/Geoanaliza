@@ -87,6 +87,7 @@ export const queryOverpassForNodes = async (
   bbox: BoundingBox,
   limit: number
 ): Promise<{ totalAvailable: number; points: Point[] }> => {
+  console.info('[overpass] consultando nodos', JSON.stringify({ bbox, limit }));
   const query = buildQuery(bbox);
   const body = new URLSearchParams({ data: query });
 
@@ -95,6 +96,10 @@ export const queryOverpassForNodes = async (
   );
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
+    console.error(
+      '[overpass] respuesta no OK',
+      JSON.stringify({ status: response.status, statusText: response.statusText, detail })
+    );
     throw new Error(
       `Overpass respondió ${response.status} ${response.statusText}${
         detail ? `: ${detail}` : ''
@@ -106,6 +111,10 @@ export const queryOverpassForNodes = async (
   const elements = payload?.elements ?? [];
 
   const mapped = elements.map(toPoint).filter(hasStreet);
+  console.info(
+    '[overpass] puntos mapeados',
+    JSON.stringify({ total: mapped.length, sampled: Math.min(limit, mapped.length) })
+  );
 
   return {
     totalAvailable: mapped.length,

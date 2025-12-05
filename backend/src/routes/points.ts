@@ -19,6 +19,11 @@ router.get('/', async (req, res) => {
     typeof req.query.neighbourhood === 'string' ? req.query.neighbourhood.trim() : '';
   const limit = parseLimit(req.query.limit);
 
+  console.info(
+    '[points] petición recibida',
+    JSON.stringify({ city, neighbourhood, limit, hasCustomBbox: Boolean(req.query.bbox) })
+  );
+
   // Soporte para bounding box personalizado
   const customBbox = req.query.bbox;
   let usesCustomBbox = false;
@@ -63,12 +68,14 @@ router.get('/', async (req, res) => {
       const cityInfo = await fetchCityBoundingBox(city);
       searchBoundingBox = cityInfo.boundingBox;
       cityName = cityInfo.city;
+      console.info('[points] ciudad resuelta en Nominatim', cityName, searchBoundingBox);
 
       if (neighbourhood) {
         const areaBox = await fetchNeighbourhoodBoundingBox(cityInfo.city, neighbourhood);
         if (areaBox) {
           searchBoundingBox = areaBox;
           resolvedNeighbourhood = neighbourhood;
+          console.info('[points] barrio resuelto en Nominatim', resolvedNeighbourhood, areaBox);
         }
       }
     }
@@ -90,6 +97,11 @@ router.get('/', async (req, res) => {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'No se pudo completar la búsqueda de puntos';
+    console.error(
+      '[points] error al obtener puntos',
+      JSON.stringify({ city, neighbourhood, limit, hasCustomBbox: usesCustomBbox }),
+      error
+    );
     return res.status(500).json({ error: message });
   }
 });
