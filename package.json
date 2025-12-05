@@ -1,0 +1,14 @@
+{
+  "name": "geoanaliza-monorepo",
+  "private": true,
+  "version": "1.2.0",
+  "type": "commonjs",
+  "workspaces": ["backend"],
+  "scripts": {
+    "build": "npm run build --workspace backend",
+    "lint": "npm run lint --workspace backend",
+    "test": "npm run test --workspace backend",
+    "type-check": "npm run type-check --workspace backend",
+    "dev": "npm run dev --workspace backend"
+  }
+}
