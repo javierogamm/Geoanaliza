@@ -14,6 +14,7 @@ import { initImportExcel, getExpedientesData, hasExpedientes } from './importExc
 import { initImportCsv } from './importCsv.js';
 import { initTranspose, showTransposeButton, hideTransposeButton } from './transposeData.js';
 import { addCustomColumn } from './columnManager.js';
+import { initCreateExpedients } from './createExpedients.js';
 
 const form = document.getElementById('search-form');
 const cityInput = document.getElementById('city');
@@ -137,6 +138,9 @@ initImportCsv((columnData) => {
 
 // Inicializar el módulo de transposición
 initTranspose(getCurrentPoints, getCustomColumnsDataMap);
+
+// Inicializar el módulo de crear expedientes
+initCreateExpedients();
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();

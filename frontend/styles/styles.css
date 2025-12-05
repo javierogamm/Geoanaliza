@@ -449,6 +449,69 @@ select:focus {
   margin: 0;
 }
 
+/* Option rows for create expedients */
+.option-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.option-row input[type="text"],
+.option-row input[type="number"] {
+  width: 100%;
+}
+
+.option-row input[type="number"] {
+  max-width: 100px;
+}
+
+.btn-remove-option {
+  background: transparent;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #f87171;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.12s ease;
+  min-width: 40px;
+}
+
+.btn-remove-option:hover {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: #f87171;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, #3b82f6, #6366f1);
+  color: white;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.35);
+}
+
+.btn-import {
+  background: linear-gradient(120deg, #10b981, #059669);
+  color: white;
+}
+
+.btn-import:hover {
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.35);
+}
+
+.btn-transpose {
+  background: linear-gradient(120deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.btn-transpose:hover {
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.35);
+}
+
 @media (max-width: 640px) {
   .btn {
     width: 100%;
@@ -469,6 +532,14 @@ select:focus {
 
   .selector-option {
     grid-template-columns: 1fr;
+  }
+
+  .option-row {
+    grid-template-columns: 1fr;
+  }
+
+  .option-row input[type="number"] {
+    max-width: 100%;
   }
 
   .modal-content {

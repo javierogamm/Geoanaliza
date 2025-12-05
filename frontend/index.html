@@ -52,6 +52,9 @@
             <button id="transpose-btn" type="button" class="btn btn-transpose" style="display: none;">
               🔄 Transponer datos
             </button>
+            <button id="create-expedients-btn" type="button" class="btn btn-primary">
+              ✨ Crear Expedientes
+            </button>
             <button id="add-column-btn" type="button" class="btn btn-add">
               <span class="btn-icon">+</span> Añadir columna
             </button>
@@ -334,6 +337,106 @@
               <button type="submit" class="btn">Añadir columna</button>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- Modal para crear expedientes -->
+      <div id="create-expedients-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Crear Expedientes</h3>
+            <button id="close-create-expedients-modal" class="btn-close">&times;</button>
+          </div>
+          <form id="create-expedients-form" class="column-form">
+            <p class="help-text" style="margin-top: 0;">Configura los parámetros para generar expedientes</p>
+
+            <!-- Paso 1: Información básica -->
+            <div class="field">
+              <label for="num-expedients">Número de expedientes *</label>
+              <input id="num-expedients" type="number" min="1" max="1000" value="10" required />
+              <p class="help-text">Cantidad de expedientes a generar</p>
+            </div>
+
+            <div class="field">
+              <label for="entity-name">Nombre de la entidad *</label>
+              <input id="entity-name" type="text" placeholder="Ej. Ayuntamiento de Zaragoza" required />
+            </div>
+
+            <div class="field">
+              <label for="procedure-name">Nombre del procedimiento *</label>
+              <input id="procedure-name" type="text" placeholder="Ej. Licencia de obras" required />
+            </div>
+
+            <!-- Paso 2: Asuntos libres -->
+            <div class="field">
+              <label style="font-weight: 600;">Asuntos libres</label>
+              <p class="help-text">Define los asuntos y su porcentaje de distribución</p>
+              <div id="asunto-options">
+                <div class="option-row">
+                  <input type="text" class="asunto-label" placeholder="Nombre del asunto" required />
+                  <input type="number" class="asunto-percent" min="0" max="100" placeholder="%" required />
+                  <button type="button" class="btn-remove-option">×</button>
+                </div>
+              </div>
+              <button type="button" id="add-asunto-btn" class="btn-secondary">+ Añadir asunto</button>
+              <p class="help-text">La suma de porcentajes debe ser 100%</p>
+            </div>
+
+            <!-- Paso 3: Unidades gestoras -->
+            <div class="field">
+              <label style="font-weight: 600;">Unidades gestoras</label>
+              <p class="help-text">Define las unidades gestoras y su porcentaje de distribución</p>
+              <div id="unidad-options">
+                <div class="option-row">
+                  <input type="text" class="unidad-label" placeholder="Nombre de la unidad" required />
+                  <input type="number" class="unidad-percent" min="0" max="100" placeholder="%" required />
+                  <button type="button" class="btn-remove-option">×</button>
+                </div>
+              </div>
+              <button type="button" id="add-unidad-btn" class="btn-secondary">+ Añadir unidad</button>
+              <p class="help-text">La suma de porcentajes debe ser 100%</p>
+            </div>
+
+            <!-- Paso 4: Rango de fechas -->
+            <div class="field">
+              <label style="font-weight: 600;">Rango de fechas</label>
+              <div class="field-group">
+                <div class="field">
+                  <label for="date-from">Fecha desde *</label>
+                  <input id="date-from" type="date" required />
+                </div>
+                <div class="field">
+                  <label for="date-to">Fecha hasta *</label>
+                  <input id="date-to" type="date" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancel-create-expedients" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn">Generar Expedientes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal para tabla de expedientes creados -->
+      <div id="expedients-table-modal" class="modal">
+        <div class="modal-content modal-large">
+          <div class="modal-header">
+            <h3>Expedientes Creados</h3>
+            <button id="close-expedients-table-modal" class="btn-close">&times;</button>
+          </div>
+          <div class="transpose-content">
+            <div class="transpose-actions">
+              <button id="export-expedients-csv" type="button" class="btn">
+                📥 Exportar a CSV
+              </button>
+            </div>
+            <div id="expedients-table-container" class="transposed-table-container">
+              <!-- La tabla de expedientes se renderiza aquí -->
+            </div>
+          </div>
         </div>
       </div>
     </main>
