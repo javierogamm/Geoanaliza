@@ -357,15 +357,15 @@ function renderExpedientsTable() {
     'Número expediente',
     'Nombre procedimiento',
     'Serie documental',
-    'Asunto libre',
-    'Asunto fijo',
+    'Asunto libre expediente',
+    'Asunto fijo expediente',
     'Unidad gestora',
-    'Asignación temporal',
-    'Asignación temporal',
-    'Eliminar asignación',
-    'Confidencialidad',
+    'Asignación temporal - Usuario',
+    'Asignación temporal - Grupo',
+    'Eliminar asignaciones temporales primero',
+    'Confidencial',
     'Fecha apertura',
-    'Fecha finalización'
+    'Fecha finalización prevista'
   ];
 
   headers.forEach(header => {
@@ -425,15 +425,15 @@ function exportToCSV() {
     'Número expediente',
     'Nombre procedimiento',
     'Serie documental',
-    'Asunto libre',
-    'Asunto fijo',
+    'Asunto libre expediente',
+    'Asunto fijo expediente',
     'Unidad gestora',
-    'Asignación temporal',
-    'Asignación temporal',
-    'Eliminar asignación',
-    'Confidencialidad',
+    'Asignación temporal - Usuario',
+    'Asignación temporal - Grupo',
+    'Eliminar asignaciones temporales primero',
+    'Confidencial',
     'Fecha apertura',
-    'Fecha finalización'
+    'Fecha finalización prevista'
   ];
 
   const rows = generatedExpedients.map(exp => [
