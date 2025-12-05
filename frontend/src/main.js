@@ -34,6 +34,8 @@ const clearAreaBtn = document.getElementById('clear-area-btn');
 let lastPointsData = null;
 // Variable para guardar puntos ficticios generados
 let mockPoints = [];
+// Variable para guardar el tipo de búsqueda pendiente después de configurar tesauros
+let pendingSearch = null;
 
 const parseLimit = (value) => {
   const parsed = parseInt(value, 10);
@@ -109,8 +111,15 @@ initColumnModal((numRows) => {
 
 // Inicializar el modal de tesauros base
 initBaseColumnsModal((config) => {
-  // Una vez configurado, proceder con la búsqueda
-  performSearch();
+  // Una vez configurado, proceder con la búsqueda pendiente
+  if (pendingSearch) {
+    if (pendingSearch.type === 'city') {
+      performSearch();
+    } else if (pendingSearch.type === 'bbox') {
+      performSearchByBbox(pendingSearch.bbox);
+    }
+    pendingSearch = null;
+  }
 });
 
 // Inicializar el módulo de importación de Excel
@@ -160,6 +169,7 @@ searchByAreaBtn.addEventListener('click', async () => {
 
   // Si no hay configuración de tesauros base, mostrar modal
   if (!hasBaseColumnsConfig()) {
+    pendingSearch = { type: 'bbox', bbox };
     openBaseColumnsModal();
   } else {
     // Si ya hay configuración, proceder con la búsqueda por bbox
@@ -185,6 +195,7 @@ form.addEventListener('submit', async (event) => {
 
   // Si no hay configuración de tesauros base, mostrar modal
   if (!hasBaseColumnsConfig()) {
+    pendingSearch = { type: 'city' };
     openBaseColumnsModal();
   } else {
     // Si ya hay configuración, proceder con la búsqueda
