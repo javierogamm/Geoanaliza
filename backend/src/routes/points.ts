@@ -19,29 +19,70 @@ router.get('/', async (req, res) => {
     typeof req.query.neighbourhood === 'string' ? req.query.neighbourhood.trim() : '';
   const limit = parseLimit(req.query.limit);
 
-  if (!city) {
-    return res.status(400).json({ error: 'El parámetro city es obligatorio' });
+  // Soporte para bounding box personalizado
+  const customBbox = req.query.bbox;
+  let usesCustomBbox = false;
+  let searchBoundingBox: BoundingBox | null = null;
+
+  // Si se proporciona un bbox personalizado, usarlo directamente
+  if (customBbox && typeof customBbox === 'string') {
+    try {
+      const parsed = JSON.parse(customBbox);
+      if (
+        typeof parsed.south === 'number' &&
+        typeof parsed.north === 'number' &&
+        typeof parsed.west === 'number' &&
+        typeof parsed.east === 'number'
+      ) {
+        searchBoundingBox = {
+          south: parsed.south,
+          north: parsed.north,
+          west: parsed.west,
+          east: parsed.east,
+        };
+        usesCustomBbox = true;
+      } else {
+        return res.status(400).json({ error: 'El bbox debe contener south, north, west, east' });
+      }
+    } catch (e) {
+      return res.status(400).json({ error: 'El parámetro bbox debe ser un JSON válido' });
+    }
+  }
+
+  // Si no se proporciona bbox personalizado, city es obligatorio
+  if (!usesCustomBbox && !city) {
+    return res.status(400).json({ error: 'Debes proporcionar city o bbox' });
   }
 
   try {
-    const cityInfo = await fetchCityBoundingBox(city);
-
-    let searchBoundingBox: BoundingBox = cityInfo.boundingBox;
+    let cityName: string | null = null;
     let resolvedNeighbourhood: string | null = null;
 
-    if (neighbourhood) {
-      const areaBox = await fetchNeighbourhoodBoundingBox(cityInfo.city, neighbourhood);
-      if (areaBox) {
-        searchBoundingBox = areaBox;
-        resolvedNeighbourhood = neighbourhood;
+    // Si no hay bbox personalizado, buscar por ciudad/barrio
+    if (!usesCustomBbox) {
+      const cityInfo = await fetchCityBoundingBox(city);
+      searchBoundingBox = cityInfo.boundingBox;
+      cityName = cityInfo.city;
+
+      if (neighbourhood) {
+        const areaBox = await fetchNeighbourhoodBoundingBox(cityInfo.city, neighbourhood);
+        if (areaBox) {
+          searchBoundingBox = areaBox;
+          resolvedNeighbourhood = neighbourhood;
+        }
       }
+    }
+
+    if (!searchBoundingBox) {
+      return res.status(400).json({ error: 'No se pudo determinar el área de búsqueda' });
     }
 
     const { totalAvailable, points } = await queryOverpassForNodes(searchBoundingBox, limit);
 
     return res.json({
-      city: cityInfo.city,
+      city: cityName,
       neighbourhood: resolvedNeighbourhood,
+      customArea: usesCustomBbox,
       totalAvailable,
       returned: points.length,
       points

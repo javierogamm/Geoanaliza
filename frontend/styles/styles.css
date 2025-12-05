@@ -484,3 +484,121 @@ select:focus {
     width: 100%;
   }
 }
+
+/* Map styles */
+.map-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.map-section h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.map-section .help-text {
+  margin: 0;
+}
+
+#map-container {
+  height: 500px;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #0b1221;
+}
+
+.map-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Leaflet overrides for dark theme */
+.leaflet-container {
+  background: #0b1221;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.6);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.leaflet-popup-close-button {
+  color: var(--muted) !important;
+  font-size: 20px !important;
+  padding: 4px 8px 0 0 !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: var(--text) !important;
+}
+
+.leaflet-control-layers,
+.leaflet-bar {
+  border: 1px solid var(--border) !important;
+  background: var(--panel) !important;
+}
+
+.leaflet-bar a {
+  background-color: var(--panel) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+.leaflet-draw-toolbar a {
+  background-color: var(--panel) !important;
+  background-image: none;
+  color: var(--text) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leaflet-draw-actions {
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.leaflet-draw-actions li a {
+  color: var(--text) !important;
+  background: var(--panel) !important;
+}
+
+.leaflet-draw-actions li a:hover {
+  background: rgba(245, 158, 11, 0.1) !important;
+}
+
+@media (max-width: 640px) {
+  #map-container {
+    height: 350px;
+  }
+
+  .map-actions {
+    flex-direction: column;
+  }
+
+  .map-actions button {
+    width: 100%;
+  }
+}
