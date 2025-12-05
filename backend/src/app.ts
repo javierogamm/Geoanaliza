@@ -14,7 +14,7 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-const frontendDir = path.resolve(__dirname, '../../frontend');
+const frontendDir = path.resolve(process.cwd(), 'frontend');
 
 app.use(express.static(frontendDir));
 app.get('/', (_req, res) => {
