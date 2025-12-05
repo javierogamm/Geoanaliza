@@ -18,3 +18,21 @@ export async function fetchPoints({ city, neighbourhood, limit }) {
 
   return payload;
 }
+
+export async function fetchPointsByBbox({ bbox, limit }) {
+  const params = new URLSearchParams();
+  params.set('bbox', JSON.stringify(bbox));
+  if (limit) {
+    params.set('limit', String(limit));
+  }
+
+  const response = await fetch(`/api/points?${params.toString()}`);
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const message = payload?.error || 'No se pudo obtener puntos';
+    throw new Error(message);
+  }
+
+  return payload;
+}

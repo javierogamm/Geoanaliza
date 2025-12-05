@@ -1,4 +1,4 @@
-import { fetchPoints } from './api.js';
+import { fetchPoints, fetchPointsByBbox } from './api.js';
 import {
   clearResults,
   renderMeta,
@@ -14,12 +14,21 @@ import { initImportExcel, getExpedientesData, hasExpedientes } from './importExc
 import { initImportCsv } from './importCsv.js';
 import { initTranspose, showTransposeButton, hideTransposeButton } from './transposeData.js';
 import { addCustomColumn } from './columnManager.js';
+import {
+  initMap,
+  getSelectedBoundingBox,
+  clearDrawnArea,
+  displayPoints as displayPointsOnMap,
+  fitToBounds
+} from './map.js';
 
 const form = document.getElementById('search-form');
 const cityInput = document.getElementById('city');
 const neighbourhoodInput = document.getElementById('neighbourhood');
 const limitInput = document.getElementById('limit');
 const exportButton = document.getElementById('export-btn');
+const searchByAreaBtn = document.getElementById('search-by-area-btn');
+const clearAreaBtn = document.getElementById('clear-area-btn');
 
 // Variable para guardar los últimos puntos y poder re-renderizar
 let lastPointsData = null;
@@ -138,6 +147,33 @@ initImportCsv((columnData) => {
 // Inicializar el módulo de transposición
 initTranspose(getCurrentPoints, getCustomColumnsDataMap);
 
+// Inicializar el mapa
+initMap('map-container');
+
+// Event listener para buscar por área dibujada en el mapa
+searchByAreaBtn.addEventListener('click', async () => {
+  const bbox = getSelectedBoundingBox();
+  if (!bbox) {
+    setStatus('Debes dibujar un área en el mapa primero.', true);
+    return;
+  }
+
+  // Si no hay configuración de tesauros base, mostrar modal
+  if (!hasBaseColumnsConfig()) {
+    openBaseColumnsModal();
+  } else {
+    // Si ya hay configuración, proceder con la búsqueda por bbox
+    await performSearchByBbox(bbox);
+  }
+});
+
+// Event listener para limpiar el área dibujada
+clearAreaBtn.addEventListener('click', () => {
+  clearDrawnArea();
+  setStatus('Área limpiada.');
+  setTimeout(() => setStatus(''), 2000);
+});
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -181,6 +217,43 @@ async function performSearch() {
       returned: data.returned
     });
     renderPoints(data.points);
+
+    // Mostrar puntos en el mapa
+    if (data.points && data.points.length > 0) {
+      displayPointsOnMap(data.points);
+    }
+
+    setStatus('');
+  } catch (error) {
+    setStatus(error.message || 'No se pudo obtener puntos', true);
+  }
+}
+
+async function performSearchByBbox(bbox) {
+  clearResults();
+
+  const limit = parseLimit(limitInput.value);
+
+  setStatus('Buscando puntos en el área seleccionada...');
+
+  try {
+    const data = await fetchPointsByBbox({ bbox, limit });
+    lastPointsData = data; // Guardamos los datos para re-renderizar
+    mockPoints = []; // Limpiar puntos ficticios cuando se cargan datos reales
+
+    renderMeta({
+      city: data.customArea ? 'Área personalizada' : data.city,
+      neighbourhood: data.neighbourhood,
+      totalAvailable: data.totalAvailable,
+      returned: data.returned
+    });
+    renderPoints(data.points);
+
+    // Mostrar puntos en el mapa
+    if (data.points && data.points.length > 0) {
+      displayPointsOnMap(data.points);
+    }
+
     setStatus('');
   } catch (error) {
     setStatus(error.message || 'No se pudo obtener puntos', true);
